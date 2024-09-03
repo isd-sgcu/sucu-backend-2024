@@ -1,0 +1,12 @@
+basePath: /api
+host: localhost:8080
+info:
+  contact: {}
+  description: This is an SUCU Backend API in SUCU project.
+  title: SUCU Backend - API
+  version: 0.0.0
+paths: {}
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"
