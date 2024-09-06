@@ -1,9 +1,7 @@
 package usecases
 
 import (
-	"context"
 	"errors"
-	"time"
 
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/repositories"
@@ -45,10 +43,7 @@ func (u *middlewareUsecase) VerifyToken(token string) (*string, error) {
 }
 
 func (u *middlewareUsecase) GetMe(userID string) (*dtos.UserDTO, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	user, err := u.userRepository.FindUserByID(ctx, userID)
+	user, err := u.userRepository.FindUserByID(userID)
 	if err != nil {
 		return nil, err
 	}

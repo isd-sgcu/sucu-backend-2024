@@ -1,8 +1,6 @@
 package repositories
 
 import (
-	"context"
-
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
 	"gorm.io/gorm"
 )
@@ -17,28 +15,28 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	}
 }
 
-func (r *userRepository) FindAllUsers(ctx context.Context, roleID string) (*[]entities.User, error) {
+func (r *userRepository) FindAllUsers(roleID string) (*[]entities.User, error) {
 	return nil, nil
 }
 
-func (r *userRepository) FindUserByID(ctx context.Context, ID string) (*entities.User, error) {
+func (r *userRepository) FindUserByID(ID string) (*entities.User, error) {
 	var user entities.User
 
-	if err := r.db.WithContext(ctx).First(&user, "id = ?", ID).Error; err != nil {
+	if err := r.db.First(&user, "id = ?", ID).Error; err != nil {
 		return nil, err
 	}
 
 	return &user, nil
 }
 
-func (r *userRepository) InsertUser(ctx context.Context, user *entities.User) error {
+func (r *userRepository) InsertUser(user *entities.User) error {
 	return nil
 }
 
-func (r *userRepository) UpdateUserByID(ctx context.Context, ID string, updateMap interface{}) error {
+func (r *userRepository) UpdateUserByID(ID string, updateMap interface{}) error {
 	return nil
 }
 
-func (r *userRepository) DeleteUserByID(ctx context.Context, ID string) error {
+func (r *userRepository) DeleteUserByID(ID string) error {
 	return nil
 }

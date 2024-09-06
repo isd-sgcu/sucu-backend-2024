@@ -1,9 +1,7 @@
 package usecases
 
 import (
-	"context"
 	"errors"
-	"time"
 
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/repositories"
@@ -28,10 +26,7 @@ func NewAuthUsecase(cfg config.Config, logger *zap.Logger, userRepository reposi
 }
 
 func (u *authUsecase) Login(loginUserDTO *dtos.LoginUserDTO) (*dtos.LoginResponseDTO, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	existedUser, err := u.userRepository.FindUserByID(ctx, loginUserDTO.StudentID)
+	existedUser, err := u.userRepository.FindUserByID(loginUserDTO.StudentID)
 	if err != nil {
 		u.logger.Named("Login").Error("Find user by ID: ", zap.Error(err))
 		return nil, err
