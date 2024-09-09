@@ -18,14 +18,14 @@ type s3Client struct {
 	client *s3.Client
 }
 
-func NewS3Client(cfg config.Config) (S3Client, error) {
+func NewS3Client(cfg config.Config) S3Client {
 	// Get credentials from env variable
-	accessKey := cfg.GetAws().AwsAccessKeyId
-	secretKey := cfg.GetAws().AwsSecretAccessKey
-	region := cfg.GetAws().AwsRegion
+	accessKey := cfg.GetAws().AccessKeyId
+	secretKey := cfg.GetAws().SecretAccessKey
+	region := cfg.GetAws().Region
 
 	if accessKey == "" || secretKey == "" || region == "" {
-		return nil, fmt.Errorf("AWS credentials or region not found in .env file")
+		panic("AWS credentials or region not found in .env file")
 	}
 
 	// Create the credentials object
@@ -37,17 +37,13 @@ func NewS3Client(cfg config.Config) (S3Client, error) {
 		Credentials: creds,
 	})
 
-	return &s3Client{client: client}, nil
+	return &s3Client{
+		client: client,
+	}
 }
 
-func (c *s3Client) UploadFile(bucketName, objectKey, filePath string) error {
-	file, err := os.Open(filePath)
-	if err != nil {
-		return fmt.Errorf("failed to open file %s, %v", filePath, err)
-	}
-	defer file.Close()
-
-	_, err = c.client.PutObject(context.TODO(), &s3.PutObjectInput{
+func (c *s3Client) UploadFile(bucketName, objectKey string, file io.Reader) error {
+	_, err := c.client.PutObject(context.TODO(), &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(objectKey),
 		Body:   file,
@@ -56,7 +52,7 @@ func (c *s3Client) UploadFile(bucketName, objectKey, filePath string) error {
 		return fmt.Errorf("failed to upload file, %v", err)
 	}
 
-	log.Printf("Successfully uploaded %s to %s/%s\n", filePath, bucketName, objectKey)
+	log.Printf("Successfully uploaded to %s/%s\n", bucketName, objectKey)
 	return nil
 }
 
@@ -85,7 +81,7 @@ func (c *s3Client) DownloadFile(bucketName, objectKey, filePath string) error {
 	return nil
 }
 
-func (c *s3Client) DeleteObject(bucketName, objectKey string) error {
+func (c *s3Client) DeleteFile(bucketName, objectKey string) error {
 	_, err := c.client.DeleteObject(context.TODO(), &s3.DeleteObjectInput{
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(objectKey),
