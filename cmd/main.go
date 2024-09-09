@@ -8,6 +8,7 @@ import (
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/config"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/database"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/logger"
+	"github.com/isd-sgcu/sucu-backend-2024/pkg/s3client"
 )
 
 // @title SUCU Backend - API
@@ -21,9 +22,10 @@ import (
 func main() {
 	cfg := config.GetConfig()
 	db := database.NewGormDatabase(cfg)
+	s3 := s3client.NewS3Client(cfg)
 	logger := logger.NewLogger(cfg)
 
-	repositories := repositories.NewRepository(db, cfg)
+	repositories := repositories.NewRepository(cfg, db, s3)
 	usecases := usecases.NewService(repositories, cfg, logger)
 	handlers := handlers.NewHandler(usecases)
 
