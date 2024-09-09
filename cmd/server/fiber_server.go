@@ -45,6 +45,7 @@ func (s *FiberHttpServer) Start() {
 	// init modules
 	s.initAuthRouter(router, s.handlers)
 	s.initUserRouter(router, s.handlers)
+	s.initAttachmentRouter(router, s.handlers)
 
 	// Setup signal capturing for graceful shutdown
 	quit := make(chan os.Signal, 1)
@@ -117,4 +118,10 @@ func (s *FiberHttpServer) initUserRouter(router fiber.Router, httpHandler handle
 	userRouter := router.Group("/users")
 
 	userRouter.Get("/", httpHandler.User().GetAllUsers)
+}
+
+func (s *FiberHttpServer) initAttachmentRouter(router fiber.Router, httpHandler handlers.Handler) {
+	attachmentRouter := router.Group("/attachments")
+
+	attachmentRouter.Get("/:document_id", httpHandler.Attachment().CreateAttachments)
 }
