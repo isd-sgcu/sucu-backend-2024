@@ -34,7 +34,8 @@ type Jwt struct {
 }
 
 type Aws struct {
-	AwsAccessKeyId     string `mapstructure:"aws_access_key_id"`
-	AwsSecretAccessKey string `mapstructure:"aws_secret_access_key"`
-	AwsRegion          string `mapstructure:"aws_region"`
+	BucketName      string `mapstructure:"aws_bucket_name"`
+	AccessKeyId     string `mapstructure:"aws_access_key_id"`
+	SecretAccessKey string `mapstructure:"aws_secret_access_key"`
+	Region          string `mapstructure:"aws_region"`
 }
