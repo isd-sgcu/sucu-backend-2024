@@ -16,7 +16,7 @@ import (
 // @description  This is an SUCU Backend API in SUCU project.
 
 // @host      localhost:8080
-// @BasePath  /api
+// @BasePath  /api/v1
 
 // @securityDefinitions.basic  BasicAuth
 func main() {
