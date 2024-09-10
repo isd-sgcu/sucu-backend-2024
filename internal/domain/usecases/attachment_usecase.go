@@ -76,9 +76,9 @@ func (u *attachmentUsecase) CreateAttachments(documentID string, files map[strin
 	var attachments []entities.Attachment
 	for fileName := range fileReaders {
 		attachment := entities.Attachment{
-			ID:         fileName,
-			Path:       fileName,
-			DocumentID: documentID,
+			ID:          fileName,
+			DisplayName: fileName,
+			DocumentID:  documentID,
 			TypeID: func() string {
 				typeID, _ := utils.ValidateFileType(fileName)
 				return *typeID

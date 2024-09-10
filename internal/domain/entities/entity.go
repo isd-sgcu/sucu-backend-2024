@@ -65,13 +65,13 @@ type AttachmentType struct {
 }
 
 type Attachment struct {
-	ID         string         `gorm:"primaryKey;type:varchar(100)"`
-	Path       string         `gorm:"type:varchar(255);not null"`
-	DocumentID string         `gorm:"type:varchar(100);not null"`
-	TypeID     string         `gorm:"type:varchar(100);not null"`
-	CreatedAt  time.Time      ``
-	UpdatedAt  time.Time      ``
-	DeletedAt  gorm.DeletedAt `gorm:"index"`
+	ID          string         `gorm:"primaryKey;type:varchar(100)"`
+	DisplayName string         `gorm:"type:varchar(255);not null"`
+	DocumentID  string         `gorm:"type:varchar(100);not null"`
+	TypeID      string         `gorm:"type:varchar(100);not null"`
+	CreatedAt   time.Time      ``
+	UpdatedAt   time.Time      ``
+	DeletedAt   gorm.DeletedAt `gorm:"index"`
 
 	Document Document       `gorm:"foreignKey:DocumentID"`
 	Type     AttachmentType `gorm:"foreignKey:TypeID"`
