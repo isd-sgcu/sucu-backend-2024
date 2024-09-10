@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
+	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/repositories"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/config"
 	"github.com/isd-sgcu/sucu-backend-2024/utils"
@@ -26,6 +27,14 @@ func NewAttachmentUsecase(cfg config.Config, logger *zap.Logger, attachmentRepos
 		logger:               logger,
 		attachmentRepository: attachmentRepository,
 	}
+}
+
+func (u *attachmentUsecase) GetAllAttachments() (*[]dtos.AttachmentDTO, error) {
+	return nil, nil
+}
+
+func (u *attachmentUsecase) GetAllAttachmentsByRole(req dtos.UserDTO) (*[]dtos.AttachmentDTO, error) {
+	return nil, nil
 }
 
 func (u *attachmentUsecase) CreateAttachments(documentID string, files map[string][]*multipart.FileHeader) error {
@@ -81,5 +90,9 @@ func (u *attachmentUsecase) CreateAttachments(documentID string, files map[strin
 		return err
 	}
 
+	return nil
+}
+
+func (u *attachmentUsecase) DeleteAttachment(ID string) error {
 	return nil
 }

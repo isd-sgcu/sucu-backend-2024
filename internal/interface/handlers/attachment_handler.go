@@ -18,6 +18,14 @@ func NewAttachmentHandler(attachmentUsecase usecases.AttachmentUsecase) *Attachm
 	}
 }
 
+func (h *AttachmentHandler) GetAllAttachments(c *fiber.Ctx) error {
+	return nil
+}
+
+func (h *AttachmentHandler) GetAllAttachmentsByRole(c *fiber.Ctx) error {
+	return nil
+}
+
 func (h *AttachmentHandler) CreateAttachments(c *fiber.Ctx) error {
 	documentID := strings.Trim(c.Params("document_id"), " ")
 
@@ -34,4 +42,8 @@ func (h *AttachmentHandler) CreateAttachments(c *fiber.Ctx) error {
 
 	resp := response.NewResponseFactory(response.SUCCESS, nil)
 	return resp.SendResponse(c, fiber.StatusOK)
+}
+
+func (h *AttachmentHandler) DeleteAttachment(c *fiber.Ctx) error {
+	return nil
 }
