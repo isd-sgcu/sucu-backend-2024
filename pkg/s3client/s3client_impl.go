@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"os"
 
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/config"
@@ -52,7 +51,6 @@ func (c *s3Client) UploadFile(bucketName, objectKey string, file io.Reader) erro
 		return fmt.Errorf("failed to upload file, %v", err)
 	}
 
-	log.Printf("Successfully uploaded to %s/%s\n", bucketName, objectKey)
 	return nil
 }
 
@@ -77,7 +75,6 @@ func (c *s3Client) DownloadFile(bucketName, objectKey, filePath string) error {
 		return fmt.Errorf("failed to write file, %v", err)
 	}
 
-	log.Printf("Successfully downloaded %s/%s to %s\n", bucketName, objectKey, filePath)
 	return nil
 }
 
@@ -90,6 +87,5 @@ func (c *s3Client) DeleteFile(bucketName, objectKey string) error {
 		return fmt.Errorf("failed to delete object, %v", err)
 	}
 
-	log.Printf("Successfully deleted %s from %s\n", objectKey, bucketName)
 	return nil
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/config"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/database"
+	"github.com/isd-sgcu/sucu-backend-2024/utils"
 	"github.com/isd-sgcu/sucu-backend-2024/utils/constant"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -67,6 +68,16 @@ func main() {
 		RoleID: constant.SGCU_SUPERADMIN,
 	}
 
+	var document entities.Document = entities.Document{
+		ID:      fmt.Sprintf("DOC-%v", utils.GenerateRandomString("0123456789", 8)),
+		Title:   "Title",
+		Content: "lorem lorem lorem lorem lorem lorem lorem",
+		Banner:  nil,
+		Cover:   nil,
+		UserID:  user.ID,
+		TypeID:  constant.ANNOUNCEMENT,
+	}
+
 	// migrate init data
 	if err := db.Table("roles").Create(&roles).Error; err != nil {
 		panic("Error while migrating roles data: " + err.Error())
@@ -79,6 +90,9 @@ func main() {
 	}
 	if err := db.Table("users").Create(&user).Error; err != nil {
 		panic("Error while migrating users data: " + err.Error())
+	}
+	if err := db.Table("documents").Create(&document).Error; err != nil {
+		panic("Error while migrating documents data: " + err.Error())
 	}
 
 	fmt.Println("migration successful")
