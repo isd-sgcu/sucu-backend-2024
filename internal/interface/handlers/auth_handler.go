@@ -53,6 +53,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 // @Success 200 {object} response.Response{data=dtos.UserDTO}
 // @Failure 500 {object} response.Response
 // @Router /auth/me [get]
+// @Security BearerAuth
 func (h *AuthHandler) GetMe(c *fiber.Ctx) error {
 	userDTO, ok := c.Locals("user").(*dtos.UserDTO)
 	if !ok {

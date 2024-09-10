@@ -1,4 +1,4 @@
-basePath: /api
+basePath: /api/v1
 definitions:
   dtos.AttachmentDTO:
     properties:
@@ -294,6 +294,8 @@ paths:
         "500":
           description: Internal Server Error
           schema: {}
+      security:
+      - BearerAuth: []
       summary: Get current user profile
       tags:
       - Authentication
@@ -589,6 +591,9 @@ paths:
       tags:
       - Users
 securityDefinitions:
-  BasicAuth:
-    type: basic
+  BearerAuth:
+    description: Type "Bearer" followed by a space and the token
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

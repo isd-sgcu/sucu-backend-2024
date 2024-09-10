@@ -18,7 +18,10 @@ import (
 // @host      localhost:8080
 // @BasePath  /api/v1
 
-// @securityDefinitions.basic  BasicAuth
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and the token
 func main() {
 	cfg := config.GetConfig()
 	db := database.NewGormDatabase(cfg)
