@@ -15,7 +15,7 @@ type usecase struct {
 	DocumentUsecase   DocumentUsecase
 }
 
-func NewService(repo repositories.Repository, cfg config.Config, logger *zap.Logger) Usecase {
+func NewUsecase(repo repositories.Repository, cfg config.Config, logger *zap.Logger) Usecase {
 	return &usecase{
 		MiddlewareUsecase: NewMiddlewareUsecase(cfg, logger.Named("MiddlewareSvc"), repo.User()),
 		AuthUsecase:       NewAuthUsecase(cfg, logger.Named("AuthSvc"), repo.User()),

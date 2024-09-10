@@ -29,7 +29,7 @@ func main() {
 	logger := logger.NewLogger(cfg)
 
 	repositories := repositories.NewRepository(cfg, db, s3)
-	usecases := usecases.NewService(repositories, cfg, logger)
+	usecases := usecases.NewUsecase(repositories, cfg, logger)
 	handlers := handlers.NewHandler(usecases)
 
 	servers := server.NewFiberHttpServer(cfg, logger, handlers)
