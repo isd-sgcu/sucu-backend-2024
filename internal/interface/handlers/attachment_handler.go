@@ -18,14 +18,40 @@ func NewAttachmentHandler(attachmentUsecase usecases.AttachmentUsecase) *Attachm
 	}
 }
 
+// GetAllAttachments godoc
+// @Summary Get all attachments
+// @Tags Attachments
+// @Produce json
+// @Success 200 {object} []dtos.AttachmentDTO
+// @Failure 400 {object} response.Response
+// @Router /attachments [get]
 func (h *AttachmentHandler) GetAllAttachments(c *fiber.Ctx) error {
 	return nil
 }
 
+// GetAllAttachmentsByRole godoc
+// @Summary Get all attachments by role
+// @Tags Attachments
+// @Produce json
+// @Param role_id path string true "Role of the user"
+// @Success 200 {object} []dtos.AttachmentDTO
+// @Failure 400 {object} response.Response
+// @Router /attachments/role/{role_id} [get]
 func (h *AttachmentHandler) GetAllAttachmentsByRole(c *fiber.Ctx) error {
 	return nil
 }
 
+// CreateAttachments godoc
+// @Summary Create new attachments
+// @Tags Attachments
+// @Accept multipart/form-data
+// @Produce json
+// @Param document_id path string true "Document ID"
+// @Param file formData file true "Attachment files"
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /attachments/{document_id} [post]
 func (h *AttachmentHandler) CreateAttachments(c *fiber.Ctx) error {
 	documentID := strings.Trim(c.Params("document_id"), " ")
 
@@ -44,6 +70,15 @@ func (h *AttachmentHandler) CreateAttachments(c *fiber.Ctx) error {
 	return resp.SendResponse(c, fiber.StatusOK)
 }
 
+// DeleteAttachment godoc
+// @Summary Delete an attachment by ID
+// @Tags Attachments
+// @Produce json
+// @Param attachment_id path string true "Attachment ID"
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /attachments/{attachment_id} [delete]
 func (h *AttachmentHandler) DeleteAttachment(c *fiber.Ctx) error {
 	return nil
 }

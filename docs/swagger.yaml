@@ -1,11 +1,593 @@
 basePath: /api
+definitions:
+  dtos.AttachmentDTO:
+    properties:
+      created_at:
+        type: string
+      document_id:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role_id:
+        description: role_id จะเอาไว้ให้ client ดูว่าไฟล์นี้มาจาก org อะไร sgcu or
+          sucu
+        type: string
+      type_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  dtos.CreateDocumentDTO:
+    properties:
+      banner:
+        type: string
+      content:
+        type: string
+      cover:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+      type_id:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dtos.CreateUserDTO:
+    properties:
+      first_name:
+        description: user's first name
+        type: string
+      id:
+        description: student id
+        type: string
+      last_name:
+        description: user's last name
+        type: string
+      password:
+        description: user's password
+        type: string
+      role:
+        description: 'role: sgcu-admin, sgcu-superadmin, sccu-admin, sccu-superadmin'
+        type: string
+    type: object
+  dtos.DocumentDTO:
+    properties:
+      author:
+        $ref: '#/definitions/dtos.UserDTO'
+      banner:
+        type: string
+      content:
+        type: string
+      cover:
+        type: string
+      created_at:
+        type: string
+      docs:
+        description: docs file eg. pdf xlsx pptx
+        items:
+          $ref: '#/definitions/dtos.AttachmentDTO'
+        type: array
+      id:
+        type: string
+      images:
+        description: images file eg. jpeg jpg png
+        items:
+          $ref: '#/definitions/dtos.AttachmentDTO'
+        type: array
+      title:
+        type: string
+      type_id:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dtos.LoginResponseDTO:
+    properties:
+      access_token:
+        type: string
+    type: object
+  dtos.LoginUserDTO:
+    properties:
+      password:
+        description: user's password
+        type: string
+      student_id:
+        description: user's id
+        type: string
+    type: object
+  dtos.UpdateDocumentDTO:
+    properties:
+      banner:
+        type: string
+      content:
+        type: string
+      cover:
+        type: string
+      title:
+        type: string
+    type: object
+  dtos.UpdateUserDTO:
+    properties:
+      first_name:
+        description: user's first name
+        type: string
+      last_name:
+        description: user's last name
+        type: string
+      password:
+        description: user's password
+        type: string
+    type: object
+  dtos.UserDTO:
+    properties:
+      created_at:
+        description: user's account creation time
+        type: string
+      first_name:
+        description: user's first name
+        type: string
+      id:
+        description: student id
+        type: string
+      last_name:
+        description: user's last name
+        type: string
+      role:
+        description: 'role: sgcu-admin, sgcu-superadmin, sccu-admin, sccu-superadmin'
+        type: string
+      updated_at:
+        description: user's last update time
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
   description: This is an SUCU Backend API in SUCU project.
   title: SUCU Backend - API
   version: 0.0.0
-paths: {}
+paths:
+  /attachments:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dtos.AttachmentDTO'
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+      summary: Get all attachments
+      tags:
+      - Attachments
+  /attachments/{attachment_id}:
+    delete:
+      parameters:
+      - description: Attachment ID
+        in: path
+        name: attachment_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Delete an attachment by ID
+      tags:
+      - Attachments
+  /attachments/{document_id}:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Document ID
+        in: path
+        name: document_id
+        required: true
+        type: string
+      - description: Attachment files
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Create new attachments
+      tags:
+      - Attachments
+  /attachments/role/{role_id}:
+    get:
+      parameters:
+      - description: Role of the user
+        in: path
+        name: role_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dtos.AttachmentDTO'
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+      summary: Get all attachments by role
+      tags:
+      - Attachments
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Login credentials
+        in: body
+        name: loginUserDTO
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.LoginUserDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - {}
+            - properties:
+                data:
+                  $ref: '#/definitions/dtos.LoginResponseDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema: {}
+        "401":
+          description: Unauthorized
+          schema: {}
+      summary: Log in user
+      tags:
+      - Authentication
+  /auth/me:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - {}
+            - properties:
+                data:
+                  $ref: '#/definitions/dtos.UserDTO'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get current user profile
+      tags:
+      - Authentication
+  /documents:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - {}
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dtos.DocumentDTO'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get all documents
+      tags:
+      - Documents
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Document data
+        in: body
+        name: document
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.CreateDocumentDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema: {}
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Create a new document
+      tags:
+      - Documents
+  /documents/{document_id}:
+    delete:
+      parameters:
+      - description: Document ID
+        in: path
+        name: document_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Delete document by ID
+      tags:
+      - Documents
+    get:
+      parameters:
+      - description: Document ID
+        in: path
+        name: document_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - {}
+            - properties:
+                data:
+                  $ref: '#/definitions/dtos.DocumentDTO'
+              type: object
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get document by ID
+      tags:
+      - Documents
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Document ID
+        in: path
+        name: document_id
+        required: true
+        type: string
+      - description: Updated document data
+        in: body
+        name: document
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.UpdateDocumentDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Update document by ID
+      tags:
+      - Documents
+  /documents/role/{role_id}:
+    get:
+      parameters:
+      - description: User role
+        in: path
+        name: role_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - {}
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dtos.DocumentDTO'
+                  type: array
+              type: object
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get documents by user role
+      tags:
+      - Documents
+  /users:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - {}
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dtos.UserDTO'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get all users
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.CreateUserDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema: {}
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Create a new user
+      tags:
+      - Users
+  /users/{user_id}:
+    delete:
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Delete user by ID
+      tags:
+      - Users
+    get:
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - {}
+            - properties:
+                data:
+                  $ref: '#/definitions/dtos.UserDTO'
+              type: object
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get user by ID
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Updated user data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.UpdateUserDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Update user by ID
+      tags:
+      - Users
 securityDefinitions:
   BasicAuth:
     type: basic

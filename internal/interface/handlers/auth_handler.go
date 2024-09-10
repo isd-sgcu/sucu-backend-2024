@@ -19,6 +19,16 @@ func NewAuthHandler(authUsecase usecases.AuthUsecase) *AuthHandler {
 	}
 }
 
+// Login godoc
+// @Summary Log in user
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param loginUserDTO body dtos.LoginUserDTO true "Login credentials"
+// @Success 200 {object} response.Response{data=dtos.LoginResponseDTO}
+// @Failure 400 {object} response.Response
+// @Failure 401 {object} response.Response
+// @Router /auth/login [post]
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	var loginUserDTO dtos.LoginUserDTO
 	if err := c.BodyParser(&loginUserDTO); err != nil {
@@ -36,6 +46,13 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	return resp.SendResponse(c, fiber.StatusOK)
 }
 
+// GetMe godoc
+// @Summary Get current user profile
+// @Tags Authentication
+// @Produce json
+// @Success 200 {object} response.Response{data=dtos.UserDTO}
+// @Failure 500 {object} response.Response
+// @Router /auth/me [get]
 func (h *AuthHandler) GetMe(c *fiber.Ctx) error {
 	userDTO, ok := c.Locals("user").(*dtos.UserDTO)
 	if !ok {
