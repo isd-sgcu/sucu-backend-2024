@@ -23,7 +23,7 @@ func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 	return nil
 }
 
-func (h *UserHandler) InsertUser(c *fiber.Ctx) error {
+func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	return nil
 }
 
