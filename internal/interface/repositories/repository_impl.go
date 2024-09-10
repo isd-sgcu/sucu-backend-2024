@@ -10,12 +10,14 @@ import (
 type repository struct {
 	UserRepository       UserRepository
 	AttachmentRepository AttachmentRepository
+	DocumentRepository   DocumentRepository
 }
 
 func NewRepository(cfg config.Config, db *gorm.DB, s3 s3client.S3Client) Repository {
 	return &repository{
 		UserRepository:       NewUserRepository(db),
 		AttachmentRepository: NewAttachmentRepository(db, s3),
+		DocumentRepository:   NewDocumentRepository(db),
 	}
 }
 
@@ -25,4 +27,8 @@ func (r *repository) User() UserRepository {
 
 func (r *repository) Attachment() AttachmentRepository {
 	return r.AttachmentRepository
+}
+
+func (r *repository) Document() DocumentRepository {
+	return r.DocumentRepository
 }

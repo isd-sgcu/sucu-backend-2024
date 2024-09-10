@@ -5,4 +5,5 @@ type Usecase interface {
 	Auth() AuthUsecase
 	User() UserUsecase
 	Attachment() AttachmentUsecase
+	Document() DocumentUsecase
 }

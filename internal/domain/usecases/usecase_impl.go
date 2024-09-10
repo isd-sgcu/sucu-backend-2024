@@ -12,14 +12,16 @@ type usecase struct {
 	AuthUsecase       AuthUsecase
 	UserUsecase       UserUsecase
 	AttachmentUsecase AttachmentUsecase
+	DocumentUsecase   DocumentUsecase
 }
 
 func NewService(repo repositories.Repository, cfg config.Config, logger *zap.Logger) Usecase {
 	return &usecase{
 		MiddlewareUsecase: NewMiddlewareUsecase(cfg, logger.Named("MiddlewareSvc"), repo.User()),
 		AuthUsecase:       NewAuthUsecase(cfg, logger.Named("AuthSvc"), repo.User()),
-		UserUsecase:       NewUserUsecase(repo.User()),
+		UserUsecase:       NewUserUsecase(cfg, logger.Named("UserSvc"), repo.User()),
 		AttachmentUsecase: NewAttachmentUsecase(cfg, logger.Named("AttachmentSvc"), repo.Attachment()),
+		DocumentUsecase:   NewDocumentUsecase(cfg, logger.Named("DocumentSvc"), repo.Document()),
 	}
 }
 
@@ -37,4 +39,8 @@ func (u *usecase) User() UserUsecase {
 
 func (u *usecase) Attachment() AttachmentUsecase {
 	return u.AttachmentUsecase
+}
+
+func (u *usecase) Document() DocumentUsecase {
+	return u.DocumentUsecase
 }

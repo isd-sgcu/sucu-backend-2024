@@ -3,14 +3,20 @@ package usecases
 import (
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/repositories"
+	"github.com/isd-sgcu/sucu-backend-2024/pkg/config"
+	"go.uber.org/zap"
 )
 
 type userUsecase struct {
+	cfg            config.Config
+	logger         *zap.Logger
 	userRepository repositories.UserRepository
 }
 
-func NewUserUsecase(userRepository repositories.UserRepository) UserUsecase {
+func NewUserUsecase(cfg config.Config, logger *zap.Logger, userRepository repositories.UserRepository) UserUsecase {
 	return &userUsecase{
+		cfg:            cfg,
+		logger:         logger,
 		userRepository: userRepository,
 	}
 }
