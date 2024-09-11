@@ -30,6 +30,9 @@ func (r *userRepository) FindUserByID(ID string) (*entities.User, error) {
 }
 
 func (r *userRepository) InsertUser(user *entities.User) error {
+	if err := r.db.Create(user).Error; err != nil {
+		return err
+	}
 	return nil
 }
 
