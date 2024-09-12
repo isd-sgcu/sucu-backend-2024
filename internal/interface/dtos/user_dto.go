@@ -16,7 +16,7 @@ type CreateUserDTO struct {
 	FirstName string `json:"first_name" validate:"required"` // user's first name
 	LastName  string `json:"last_name" validate:"required"`  // user's last name
 	Password  string `json:"password" validate:"required"`   // user's password
-	Role      string `json:"role" validate:"required"`       // role: sgcu-admin, sgcu-superadmin, sccu-admin, sccu-superadmin
+	Role      string `json:"role"`                           // role: sgcu-admin, sgcu-superadmin, sccu-admin, sccu-superadmin
 }
 
 type UpdateUserDTO struct {
