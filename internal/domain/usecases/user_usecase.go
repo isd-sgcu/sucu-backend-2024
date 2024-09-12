@@ -38,14 +38,9 @@ func (u *userUsecase) GetUserByID(req *dtos.UserDTO, userID string) (*dtos.UserD
 }
 
 func (u *userUsecase) CreateUser(req *dtos.UserDTO, createUserDTO *dtos.CreateUserDTO) error {
-	var role string
-	switch req.Role {
-	case constant.SGCU_SUPERADMIN:
-		role = constant.SGCU_ADMIN
-	case constant.SCCU_SUPERADMIN:
-		role = constant.SCCU_ADMIN
-	default:
-		u.logger.Named("CreateUser").Error(constant.ErrInvalidRole.Error(), zap.String("role", req.Role))
+	role, err := utils.GetRole(createUserDTO.Role)
+	if err != nil {
+		u.logger.Named("CreateUser").Error(constant.ErrInvalidRole.Error(), zap.String("role", createUserDTO.Role), zap.Error(err))
 		return constant.ErrInvalidRole
 	}
 
