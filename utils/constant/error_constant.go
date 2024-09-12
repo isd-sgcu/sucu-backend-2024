@@ -9,4 +9,5 @@ var (
 	ErrHashPasswordFailed = errors.New("failed to hash password")
 	ErrInsertUserFailed   = errors.New("failed to insert user")
 	ErrFindUserByID       = errors.New("failed to find user by ID")
+	ErrInvalidRole        = errors.New("invalid role")
 )
