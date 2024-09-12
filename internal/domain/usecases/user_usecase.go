@@ -38,6 +38,17 @@ func (u *userUsecase) GetUserByID(req *dtos.UserDTO, userID string) (*dtos.UserD
 }
 
 func (u *userUsecase) CreateUser(req *dtos.UserDTO, createUserDTO *dtos.CreateUserDTO) error {
+	var role string
+	switch req.Role {
+	case constant.SGCU_SUPERADMIN:
+		role = constant.SGCU_ADMIN
+	case constant.SCCU_SUPERADMIN:
+		role = constant.SCCU_ADMIN
+	default:
+		u.logger.Named("CreateUser").Error(constant.ErrInvalidRole.Error(), zap.String("role", req.Role))
+		return constant.ErrInvalidRole
+	}
+
 	existingUser, err := u.userRepository.FindUserByID(createUserDTO.ID)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		u.logger.Named("CreateUser").Error(constant.ErrFindUserByID.Error(), zap.String("userID", createUserDTO.ID), zap.Error(err))
@@ -51,7 +62,7 @@ func (u *userUsecase) CreateUser(req *dtos.UserDTO, createUserDTO *dtos.CreateUs
 
 	hashedPassword, err := utils.HashPassword(createUserDTO.Password)
 	if err != nil {
-		u.logger.Named("CreateUser").Error(constant.ErrHashPasswordFailed.Error(), zap.String("userID", req.ID), zap.Error(err))
+		u.logger.Named("CreateUser").Error(constant.ErrHashPasswordFailed.Error(), zap.String("userID", createUserDTO.ID), zap.Error(err))
 		return constant.ErrHashPasswordFailed
 	}
 
@@ -60,7 +71,7 @@ func (u *userUsecase) CreateUser(req *dtos.UserDTO, createUserDTO *dtos.CreateUs
 		FirstName: createUserDTO.FirstName,
 		LastName:  createUserDTO.LastName,
 		Password:  hashedPassword,
-		RoleID:    createUserDTO.Role,
+		RoleID:    role,
 	}
 
 	if err := u.userRepository.InsertUser(newUser); err != nil {
@@ -68,14 +79,7 @@ func (u *userUsecase) CreateUser(req *dtos.UserDTO, createUserDTO *dtos.CreateUs
 		return constant.ErrInsertUserFailed
 	}
 
-	req.ID = newUser.ID
-	req.FirstName = newUser.FirstName
-	req.LastName = newUser.LastName
-	req.Role = newUser.RoleID
-	req.CreatedAt = newUser.CreatedAt
-	req.UpdatedAt = newUser.UpdatedAt
-
-	u.logger.Named("CreateUser").Info("Success: ", zap.String("user_id", req.ID))
+	u.logger.Named("CreateUser").Info("Success: ", zap.String("user_id", newUser.ID))
 	return nil
 }
 
