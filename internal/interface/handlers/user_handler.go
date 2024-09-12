@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strings"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/usecases"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
@@ -62,18 +64,18 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	}
 
 	if errs := h.validator.Validate(createUserDTO); len(errs) > 0 {
-		resp := response.NewResponseFactory(response.ERROR, errs)
+		resp := response.NewResponseFactory(response.ERROR, strings.Join(errs, ", "))
 		return resp.SendResponse(c, fiber.StatusBadRequest)
 	}
 
-	var req dtos.UserDTO
-	err := h.userUsecase.CreateUser(&req, &createUserDTO)
+	req := c.Locals("user").(*dtos.UserDTO)
+	err := h.userUsecase.CreateUser(req, &createUserDTO)
 	if err != nil {
 		resp := response.NewResponseFactory(response.ERROR, err.Error())
 		return resp.SendResponse(c, fiber.StatusInternalServerError)
 	}
 
-	resp := response.NewResponseFactory(response.SUCCESS, req)
+	resp := response.NewResponseFactory(response.SUCCESS, createUserDTO)
 	return resp.SendResponse(c, fiber.StatusCreated)
 }
 
