@@ -1,6 +1,9 @@
 package handlers
 
-import "github.com/isd-sgcu/sucu-backend-2024/internal/domain/usecases"
+import (
+	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/usecases"
+	"github.com/isd-sgcu/sucu-backend-2024/pkg/validator"
+)
 
 type handler struct {
 	MiddlewareHandler *MiddlewareHandler
@@ -9,11 +12,11 @@ type handler struct {
 	AttachmentHandler *AttachmentHandler
 }
 
-func NewHandler(usecases usecases.Usecase) Handler {
+func NewHandler(usecases usecases.Usecase, validator validator.DTOValidator) Handler {
 	return &handler{
 		MiddlewareHandler: NewMiddlewareHandler(usecases.Middleware()),
 		AuthHandler:       NewAuthHandler(usecases.Auth()),
-		UserHandler:       NewUserHandler(usecases.User()),
+		UserHandler:       NewUserHandler(usecases.User(), validator),
 		AttachmentHandler: NewAttachmentHandler(usecases.Attachment()),
 	}
 }
