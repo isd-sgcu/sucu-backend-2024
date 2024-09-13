@@ -1,8 +1,13 @@
 package handlers
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/usecases"
+	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
+	"github.com/isd-sgcu/sucu-backend-2024/pkg/response"
 )
 
 type DocumentHandler struct {
@@ -23,7 +28,34 @@ func NewDocumentHandler(documentUsecase usecases.DocumentUsecase) *DocumentHandl
 // @Failure 500 {object} response.Response
 // @Router /documents [get]
 func (h *DocumentHandler) GetAllDocuments(c *fiber.Ctx) error {
-	c.SendString("documets")
+	 getDocumentsDTO := dtos.GetDocumentsDTO{
+		Page: c.QueryInt("page", 1),
+		Limit: c.QueryInt("limit", 10),
+		Query: c.Query("query"),
+		Org: c.Query("org"),
+	}
+
+	if getDocumentsDTO.Limit >= 20 || getDocumentsDTO.Limit < 0 {
+		resp := response.NewResponseFactory(response.ERROR, errors.New("limit need to be between 0 and 20"))
+		resp.SendResponse(c, fiber.StatusBadRequest)		
+	}
+
+	documentsDTO, err := h.documentUsecase.GetAllDocuments(&getDocumentsDTO)
+	if err != nil {
+		resp := response.NewResponseFactory(response.ERROR, err.Error())
+		resp.SendResponse(c, fiber.StatusInternalServerError)
+	}
+
+	paginationResponseDTO := dtos.PaginationResponse{
+		Data: *documentsDTO,
+		Page: fmt.Sprintf("%v", getDocumentsDTO.Page),
+		Limit: fmt.Sprintf("%v", getDocumentsDTO.Limit),
+		TotalPage: fmt.Sprintf("%v", len(*documentsDTO)),
+	}
+
+	resp := response.NewResponseFactory(response.SUCCESS, paginationResponseDTO)
+	resp.SendResponse(c, fiber.StatusAccepted)
+
 	return nil
 }
 
