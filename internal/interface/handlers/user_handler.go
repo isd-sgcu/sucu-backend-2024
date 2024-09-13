@@ -69,10 +69,10 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	}
 
 	req := c.Locals("user").(*dtos.UserDTO)
-	err := h.userUsecase.CreateUser(req, &createUserDTO)
-	if err != nil {
-		resp := response.NewResponseFactory(response.ERROR, err.Error())
-		return resp.SendResponse(c, fiber.StatusInternalServerError)
+	apperr := h.userUsecase.CreateUser(req, &createUserDTO)
+	if apperr != nil {
+		resp := response.NewResponseFactory(response.ERROR, apperr.Error())
+		return resp.SendResponse(c, apperr.HttpCode)
 	}
 
 	resp := response.NewResponseFactory(response.SUCCESS, createUserDTO)

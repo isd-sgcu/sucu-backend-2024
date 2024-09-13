@@ -1,6 +1,10 @@
 package utils
 
-import "github.com/isd-sgcu/sucu-backend-2024/utils/constant"
+import (
+	"errors"
+
+	"github.com/isd-sgcu/sucu-backend-2024/utils/constant"
+)
 
 func GetRole(role string) (string, error) {
 	switch role {
@@ -9,7 +13,7 @@ func GetRole(role string) (string, error) {
 	case constant.SCCU_SUPERADMIN:
 		role = constant.SCCU_ADMIN
 	default:
-		return "", constant.ErrInvalidRole
+		return "", errors.New(constant.ErrInvalidRole)
 	}
 
 	return role, nil
