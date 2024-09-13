@@ -23,6 +23,7 @@ func NewDocumentHandler(documentUsecase usecases.DocumentUsecase) *DocumentHandl
 // @Failure 500 {object} response.Response
 // @Router /documents [get]
 func (h *DocumentHandler) GetAllDocuments(c *fiber.Ctx) error {
+	c.SendString("documets")
 	return nil
 }
 
