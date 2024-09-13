@@ -3,6 +3,8 @@ package handlers
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/usecases"
+	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
+	"github.com/isd-sgcu/sucu-backend-2024/pkg/response"
 )
 
 type UserHandler struct {
@@ -50,7 +52,18 @@ func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 // @Failure 500 {object} response.Response
 // @Router /users [post]
 func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
-	return nil
+	var createUserDTO dtos.CreateUserDTO
+	// omitted parse, validation
+
+	req := c.Locals("user").(*dtos.UserDTO)
+	apperr := h.userUsecase.CreateUser(req, &createUserDTO)
+	if apperr != nil {
+		resp := response.NewResponseFactory(response.ERROR, apperr.Error())
+		return resp.SendResponse(c, apperr.HttpCode)
+	}
+
+	resp := response.NewResponseFactory(response.SUCCESS, createUserDTO)
+	return resp.SendResponse(c, fiber.StatusCreated)
 }
 
 // UpdateUserByID godoc

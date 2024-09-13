@@ -4,6 +4,8 @@ import (
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/repositories"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/config"
+	"github.com/isd-sgcu/sucu-backend-2024/pkg/response"
+	"github.com/isd-sgcu/sucu-backend-2024/utils/constant"
 	"go.uber.org/zap"
 )
 
@@ -31,8 +33,8 @@ func (u *userUsecase) GetUserByID(req *dtos.UserDTO, userID string) (*dtos.UserD
 	return nil, nil
 }
 
-func (u *userUsecase) CreateUser(req *dtos.UserDTO, createUserDTO *dtos.CreateUserDTO) error {
-	return nil
+func (u *userUsecase) CreateUser(req *dtos.UserDTO, createUserDTO *dtos.CreateUserDTO) *response.AppError {
+	return response.BadRequestError(constant.ErrInvalidRole)
 }
 
 func (u *userUsecase) UpdateUserByID(req *dtos.UserDTO, userID string, updateUserDTO *dtos.UpdateUserDTO) error {
