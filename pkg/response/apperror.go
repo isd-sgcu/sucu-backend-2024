@@ -13,15 +13,6 @@ func (e *AppError) Error() string {
 	return e.Id
 }
 
-var (
-	BadRequest         = &AppError{"Bad request", http.StatusBadRequest}
-	Unauthorized       = &AppError{"Unauthorized", http.StatusUnauthorized}
-	Forbidden          = &AppError{"Forbidden", http.StatusForbidden}
-	NotFound           = &AppError{"Not found", http.StatusNotFound}
-	InternalServer     = &AppError{"Internal error", http.StatusInternalServerError}
-	ServiceUnavailable = &AppError{"Internal error", http.StatusServiceUnavailable}
-)
-
 func BadRequestError(message string) *AppError {
 	return &AppError{message, http.StatusBadRequest}
 }
