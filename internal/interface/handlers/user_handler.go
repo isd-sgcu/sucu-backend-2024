@@ -1,17 +1,24 @@
 package handlers
 
 import (
+	"strings"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/usecases"
+	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
+	"github.com/isd-sgcu/sucu-backend-2024/pkg/response"
+	"github.com/isd-sgcu/sucu-backend-2024/pkg/validator"
 )
 
 type UserHandler struct {
 	userUsecase usecases.UserUsecase
+	validator   validator.DTOValidator
 }
 
-func NewUserHandler(userUsecase usecases.UserUsecase) *UserHandler {
+func NewUserHandler(userUsecase usecases.UserUsecase, validator validator.DTOValidator) *UserHandler {
 	return &UserHandler{
 		userUsecase: userUsecase,
+		validator:   validator,
 	}
 }
 
@@ -50,7 +57,26 @@ func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 // @Failure 500 {object} response.Response
 // @Router /users [post]
 func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
-	return nil
+	var createUserDTO dtos.CreateUserDTO
+	if err := c.BodyParser(&createUserDTO); err != nil {
+		resp := response.NewResponseFactory(response.ERROR, err.Error())
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	if errs := h.validator.Validate(createUserDTO); len(errs) > 0 {
+		resp := response.NewResponseFactory(response.ERROR, strings.Join(errs, ", "))
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	req := c.Locals("user").(*dtos.UserDTO)
+	err := h.userUsecase.CreateUser(req, &createUserDTO)
+	if err != nil {
+		resp := response.NewResponseFactory(response.ERROR, err.Error())
+		return resp.SendResponse(c, fiber.StatusInternalServerError)
+	}
+
+	resp := response.NewResponseFactory(response.SUCCESS, createUserDTO)
+	return resp.SendResponse(c, fiber.StatusCreated)
 }
 
 // UpdateUserByID godoc
