@@ -118,7 +118,7 @@ func (h *UserHandler) DeleteUserByID(c *fiber.Ctx) error {
 // @Failure 400 {object} response.Response
 // @Failure 404 {object} response.Response
 // @Failure 500 {object} response.Response
-// @Router /profile [put]
+// @Router /profile [patch]
 func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
 	var updateProfile dtos.UpdateUserDTO
 	if err := c.BodyParser(&updateProfile); err != nil {
