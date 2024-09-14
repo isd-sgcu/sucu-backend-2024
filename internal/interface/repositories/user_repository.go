@@ -30,14 +30,11 @@ func (r *userRepository) FindUserByID(ID string) (*entities.User, error) {
 }
 
 func (r *userRepository) InsertUser(user *entities.User) error {
-	if err := r.db.Create(user).Error; err != nil {
-		return err
-	}
-	return nil
+	return r.db.Create(user).Error
 }
 
 func (r *userRepository) UpdateUserByID(ID string, updateMap interface{}) error {
-	return nil
+	return r.db.Model(&entities.User{}).Where("id = ?", ID).Updates(updateMap).Error
 }
 
 func (r *userRepository) DeleteUserByID(ID string) error {
