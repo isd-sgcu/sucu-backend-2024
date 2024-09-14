@@ -90,5 +90,21 @@ func (u *userUsecase) DeleteUserByID(req *dtos.UserDTO, userID string) *apperror
 // admin method
 
 func (u *userUsecase) UpdateProfile(req *dtos.UserDTO, updateUserDTO *dtos.UpdateUserDTO) *apperror.AppError {
+	existingUser, err := u.userRepository.FindUserByID(req.ID)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		u.logger.Named("UpdateProfile").Error(constant.ErrFindUserByID, zap.String("userID", req.ID), zap.Error(err))
+		return apperror.NotFoundError(constant.ErrFindUserByID)
+	}
+
+	if existingUser == nil {
+		u.logger.Named("UpdateProfile").Error(constant.ErrUserNotFound, zap.String("userID", req.ID))
+		return apperror.BadRequestError(constant.ErrUserNotFound)
+	}
+
+	err = u.userRepository.UpdateUserByID(req.ID, updateUserDTO)
+	if err != nil {
+		u.logger.Named("UpdateProfile").Error(constant.ErrUpdateUserByID, zap.String("userID", req.ID), zap.Error(err))
+		return apperror.BadRequestError(constant.ErrUpdateUserByID)
+	}
 	return nil
 }
