@@ -33,11 +33,27 @@ func (h *DocumentHandler) GetAllDocuments(c *fiber.Ctx) error {
 		Limit: c.QueryInt("limit", 10),
 		Query: c.Query("query"),
 		Org: c.Query("org"),
+		Type: c.Query("type"),
+	}
+
+	if getDocumentsDTO.Page < 1 {
+		resp := response.NewResponseFactory(response.ERROR, errors.New("page need to be greater than 0"))
+		resp.SendResponse(c, fiber.StatusBadRequest)
 	}
 
 	if getDocumentsDTO.Limit >= 20 || getDocumentsDTO.Limit < 0 {
 		resp := response.NewResponseFactory(response.ERROR, errors.New("limit need to be between 0 and 20"))
 		resp.SendResponse(c, fiber.StatusBadRequest)		
+	}
+
+	if getDocumentsDTO.Org != "sccu" && getDocumentsDTO.Org != "sgcu" && getDocumentsDTO.Org != "" {
+		resp := response.NewResponseFactory(response.ERROR, errors.New("org need to be either sccu, sgcu or empty"))
+		resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	if getDocumentsDTO.Type != "statistic" && getDocumentsDTO.Type != "budget" && getDocumentsDTO.Type != "announcement" && getDocumentsDTO.Type != "" {
+		resp := response.NewResponseFactory(response.ERROR, errors.New("type need to be either statistic, budget, announcement or empty"))
+		resp.SendResponse(c, fiber.StatusBadRequest)
 	}
 
 	documentsDTO, err := h.documentUsecase.GetAllDocuments(&getDocumentsDTO)
@@ -54,9 +70,7 @@ func (h *DocumentHandler) GetAllDocuments(c *fiber.Ctx) error {
 	}
 
 	resp := response.NewResponseFactory(response.SUCCESS, paginationResponseDTO)
-	resp.SendResponse(c, fiber.StatusAccepted)
-
-	return nil
+	return resp.SendResponse(c, fiber.StatusAccepted)
 }
 
 // GetDocumentByID godoc

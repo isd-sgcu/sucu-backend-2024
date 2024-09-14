@@ -1,6 +1,8 @@
 package dtos
 
-import "time"
+import (
+	"time"
+)
 
 type DocumentDTO struct {
 	ID        string    `json:"id"`
@@ -33,4 +35,20 @@ type UpdateDocumentDTO struct {
 	Content string  `json:"content"`
 	Banner  *string `json:"banner"`
 	Cover   *string `json:"cover"`
+}
+
+type GetDocumentsDTO struct {
+	Page			int	
+	Limit			int
+	Query		 	string
+	Org				string   // organization: sccu, sgcu
+	Type 			string  // type: statistic, budget, announcement
+}
+
+type FindAllDocumentsDTO struct {
+	Page			int	
+	Limit			int
+	Query		 	string
+	Org				string   // organization: sccu, sgcu
+	Type 			string  // type: statistic, budget, announcement
 }

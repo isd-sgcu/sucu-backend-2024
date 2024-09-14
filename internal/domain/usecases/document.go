@@ -6,7 +6,7 @@ import (
 
 type DocumentUsecase interface {
 	// client side
-	GetAllDocuments() (*[]dtos.DocumentDTO, error)
+	GetAllDocuments(req *dtos.GetDocumentsDTO) (*[]dtos.DocumentDTO, error)
 	GetDocumentByID(ID string) (*dtos.DocumentDTO, error)
 
 	// back office
