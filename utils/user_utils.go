@@ -18,3 +18,7 @@ func GetRole(role string) (string, error) {
 
 	return role, nil
 }
+
+func IsSuperAdmin(role string) bool {
+	return role == constant.SGCU_SUPERADMIN || role == constant.SCCU_SUPERADMIN
+}

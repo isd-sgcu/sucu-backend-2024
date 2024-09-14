@@ -39,7 +39,7 @@ func (u *userUsecase) GetUserByID(req *dtos.UserDTO, userID string) (*dtos.UserD
 }
 
 func (u *userUsecase) CreateUser(req *dtos.UserDTO, createUserDTO *dtos.CreateUserDTO) *apperror.AppError {
-	role, err := utils.GetRole(createUserDTO.Role)
+	role, err := utils.GetRole(req.Role)
 	if err != nil {
 		u.logger.Named("CreateUser").Error(constant.ErrInvalidRole, zap.String("role", createUserDTO.Role), zap.Error(err))
 		return apperror.BadRequestError(constant.ErrInvalidRole)
@@ -90,5 +90,33 @@ func (u *userUsecase) DeleteUserByID(req *dtos.UserDTO, userID string) *apperror
 // admin method
 
 func (u *userUsecase) UpdateProfile(req *dtos.UserDTO, updateUserDTO *dtos.UpdateUserDTO) *apperror.AppError {
+	updateFields := make(map[string]interface{})
+
+	if updateUserDTO.FirstName != "" {
+		updateFields["first_name"] = updateUserDTO.FirstName
+	}
+
+	if updateUserDTO.LastName != "" {
+		updateFields["last_name"] = updateUserDTO.LastName
+	}
+
+	if updateUserDTO.Password != "" {
+		hashedPassword, err := utils.HashPassword(updateUserDTO.Password)
+		if err != nil {
+			u.logger.Named("UpdateProfile").Error(constant.ErrHashPasswordFailed, zap.String("userID", req.ID), zap.Error(err))
+			return apperror.InternalServerError(constant.ErrHashPasswordFailed)
+		}
+		updateFields["password"] = hashedPassword
+	}
+
+	if len(updateFields) == 0 {
+		return apperror.BadRequestError("No fields to update")
+	}
+
+	err := u.userRepository.UpdateUserByID(req.ID, updateFields)
+	if err != nil {
+		u.logger.Named("UpdateProfile").Error(constant.ErrUpdateUserByID, zap.String("userID", req.ID), zap.Error(err))
+		return apperror.BadRequestError(constant.ErrUpdateUserByID)
+	}
 	return nil
 }

@@ -53,6 +53,11 @@ definitions:
       role:
         description: 'role: sgcu-admin, sgcu-superadmin, sccu-admin, sccu-superadmin'
         type: string
+    required:
+    - first_name
+    - id
+    - last_name
+    - password
     type: object
   dtos.DocumentDTO:
     properties:
@@ -152,6 +157,35 @@ info:
   title: SUCU Backend - API
   version: 0.0.0
 paths:
+  /:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Updated user data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.UpdateUserDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Update user profile
+      tags:
+      - Users
   /attachments:
     get:
       produces:
