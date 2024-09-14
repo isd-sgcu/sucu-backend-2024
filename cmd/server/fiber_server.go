@@ -120,6 +120,7 @@ func (s *FiberHttpServer) initUserRouter(router fiber.Router, httpHandler handle
 
 	userRouter.Get("/", httpHandler.User().GetAllUsers)
 	userRouter.Post("/", httpHandler.User().CreateUser)
+	userRouter.Put("/", httpHandler.User().UpdateProfile)
 }
 
 func (s *FiberHttpServer) initAttachmentRouter(router fiber.Router, httpHandler handlers.Handler) {
