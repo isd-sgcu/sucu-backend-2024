@@ -59,47 +59,9 @@ func (h *MiddlewareHandler) IsLogin(c *fiber.Ctx) error {
 	return c.Next()
 }
 
-func (h *MiddlewareHandler) SGCUAdmin(c *fiber.Ctx) error {
-	h.IsLogin(c)
-
+func (h *MiddlewareHandler) SuperAdmin(c *fiber.Ctx) error {
 	userDTO := c.Locals("user").(*dtos.UserDTO)
-	if userDTO.Role != constant.SGCU_ADMIN && userDTO.Role != constant.SGCU_SUPERADMIN {
-		resp := response.NewResponseFactory(response.ERROR, errors.New("Forbidden").Error())
-		return resp.SendResponse(c, fiber.StatusForbidden)
-	}
-
-	return c.Next()
-}
-
-func (h *MiddlewareHandler) SGCUSuperAdmin(c *fiber.Ctx) error {
-	h.IsLogin(c)
-
-	userDTO := c.Locals("user").(*dtos.UserDTO)
-	if userDTO.Role != constant.SGCU_SUPERADMIN {
-		resp := response.NewResponseFactory(response.ERROR, errors.New("Forbidden").Error())
-		return resp.SendResponse(c, fiber.StatusForbidden)
-	}
-
-	return c.Next()
-}
-
-func (h *MiddlewareHandler) SCCUAdmin(c *fiber.Ctx) error {
-	h.IsLogin(c)
-
-	userDTO := c.Locals("user").(*dtos.UserDTO)
-	if userDTO.Role != constant.SCCU_ADMIN && userDTO.Role != constant.SCCU_SUPERADMIN {
-		resp := response.NewResponseFactory(response.ERROR, errors.New("Forbidden").Error())
-		return resp.SendResponse(c, fiber.StatusForbidden)
-	}
-
-	return c.Next()
-}
-
-func (h *MiddlewareHandler) SCCUSuperAdmin(c *fiber.Ctx) error {
-	h.IsLogin(c)
-
-	userDTO := c.Locals("user").(*dtos.UserDTO)
-	if userDTO.Role != constant.SCCU_SUPERADMIN {
+	if userDTO.Role != constant.SGCU_SUPERADMIN && userDTO.Role != constant.SCCU_SUPERADMIN {
 		resp := response.NewResponseFactory(response.ERROR, errors.New("Forbidden").Error())
 		return resp.SendResponse(c, fiber.StatusForbidden)
 	}
