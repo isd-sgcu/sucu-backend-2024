@@ -6,6 +6,7 @@ import (
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/repositories"
+	"github.com/isd-sgcu/sucu-backend-2024/pkg/apperror"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/config"
 	"github.com/isd-sgcu/sucu-backend-2024/utils"
 	"github.com/isd-sgcu/sucu-backend-2024/utils/constant"
@@ -29,36 +30,36 @@ func NewUserUsecase(cfg config.Config, logger *zap.Logger, userRepository reposi
 
 // super-admin method
 
-func (u *userUsecase) GetAllUsers(req *dtos.UserDTO) (*[]dtos.UserDTO, error) {
+func (u *userUsecase) GetAllUsers(req *dtos.UserDTO) (*[]dtos.UserDTO, *apperror.AppError) {
 	return nil, nil
 }
 
-func (u *userUsecase) GetUserByID(req *dtos.UserDTO, userID string) (*dtos.UserDTO, error) {
+func (u *userUsecase) GetUserByID(req *dtos.UserDTO, userID string) (*dtos.UserDTO, *apperror.AppError) {
 	return nil, nil
 }
 
-func (u *userUsecase) CreateUser(req *dtos.UserDTO, createUserDTO *dtos.CreateUserDTO) error {
+func (u *userUsecase) CreateUser(req *dtos.UserDTO, createUserDTO *dtos.CreateUserDTO) *apperror.AppError {
 	role, err := utils.GetRole(createUserDTO.Role)
 	if err != nil {
-		u.logger.Named("CreateUser").Error(constant.ErrInvalidRole.Error(), zap.String("role", createUserDTO.Role), zap.Error(err))
-		return constant.ErrInvalidRole
+		u.logger.Named("CreateUser").Error(constant.ErrInvalidRole, zap.String("role", createUserDTO.Role), zap.Error(err))
+		return apperror.BadRequestError(constant.ErrInvalidRole)
 	}
 
 	existingUser, err := u.userRepository.FindUserByID(createUserDTO.ID)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		u.logger.Named("CreateUser").Error(constant.ErrFindUserByID.Error(), zap.String("userID", createUserDTO.ID), zap.Error(err))
-		return constant.ErrFindUserByID
+		u.logger.Named("CreateUser").Error(constant.ErrFindUserByID, zap.String("userID", createUserDTO.ID), zap.Error(err))
+		return apperror.NotFoundError(constant.ErrFindUserByID)
 	}
 
 	if existingUser != nil {
-		u.logger.Named("CreateUser").Error(constant.ErrUserAlreadyExists.Error(), zap.String("userID", createUserDTO.ID))
-		return constant.ErrUserAlreadyExists
+		u.logger.Named("CreateUser").Error(constant.ErrUserAlreadyExists, zap.String("userID", createUserDTO.ID))
+		return apperror.BadRequestError(constant.ErrUserAlreadyExists)
 	}
 
 	hashedPassword, err := utils.HashPassword(createUserDTO.Password)
 	if err != nil {
-		u.logger.Named("CreateUser").Error(constant.ErrHashPasswordFailed.Error(), zap.String("userID", createUserDTO.ID), zap.Error(err))
-		return constant.ErrHashPasswordFailed
+		u.logger.Named("CreateUser").Error(constant.ErrHashPasswordFailed, zap.String("userID", createUserDTO.ID), zap.Error(err))
+		return apperror.InternalServerError(constant.ErrHashPasswordFailed)
 	}
 
 	newUser := &entities.User{
@@ -70,24 +71,24 @@ func (u *userUsecase) CreateUser(req *dtos.UserDTO, createUserDTO *dtos.CreateUs
 	}
 
 	if err := u.userRepository.InsertUser(newUser); err != nil {
-		u.logger.Named("CreateUser").Error(constant.ErrInsertUserFailed.Error(), zap.String("userID", req.ID), zap.Error(err))
-		return constant.ErrInsertUserFailed
+		u.logger.Named("CreateUser").Error(constant.ErrInsertUserFailed, zap.String("userID", req.ID), zap.Error(err))
+		return apperror.InternalServerError(constant.ErrInsertUserFailed)
 	}
 
 	u.logger.Named("CreateUser").Info("Success: ", zap.String("user_id", newUser.ID))
 	return nil
 }
 
-func (u *userUsecase) UpdateUserByID(req *dtos.UserDTO, userID string, updateUserDTO *dtos.UpdateUserDTO) error {
+func (u *userUsecase) UpdateUserByID(req *dtos.UserDTO, userID string, updateUserDTO *dtos.UpdateUserDTO) *apperror.AppError {
 	return nil
 }
 
-func (u *userUsecase) DeleteUserByID(req *dtos.UserDTO, userID string) error {
+func (u *userUsecase) DeleteUserByID(req *dtos.UserDTO, userID string) *apperror.AppError {
 	return nil
 }
 
 // admin method
 
-func (u *userUsecase) UpdateProfile(req *dtos.UserDTO, updateUserDTO *dtos.UpdateUserDTO) error {
+func (u *userUsecase) UpdateProfile(req *dtos.UserDTO, updateUserDTO *dtos.UpdateUserDTO) *apperror.AppError {
 	return nil
 }

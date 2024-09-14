@@ -10,6 +10,7 @@ import (
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/repositories"
+	"github.com/isd-sgcu/sucu-backend-2024/pkg/apperror"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/config"
 	"github.com/isd-sgcu/sucu-backend-2024/utils"
 	"github.com/isd-sgcu/sucu-backend-2024/utils/constant"
@@ -30,15 +31,15 @@ func NewAttachmentUsecase(cfg config.Config, logger *zap.Logger, attachmentRepos
 	}
 }
 
-func (u *attachmentUsecase) GetAllAttachments() (*[]dtos.AttachmentDTO, error) {
+func (u *attachmentUsecase) GetAllAttachments() (*[]dtos.AttachmentDTO, *apperror.AppError) {
 	return nil, nil
 }
 
-func (u *attachmentUsecase) GetAllAttachmentsByRole(req dtos.UserDTO) (*[]dtos.AttachmentDTO, error) {
+func (u *attachmentUsecase) GetAllAttachmentsByRole(req dtos.UserDTO) (*[]dtos.AttachmentDTO, *apperror.AppError) {
 	return nil, nil
 }
 
-func (u *attachmentUsecase) CreateAttachments(documentID string, files map[string][]*multipart.FileHeader) error {
+func (u *attachmentUsecase) CreateAttachments(documentID string, files map[string][]*multipart.FileHeader) *apperror.AppError {
 	var attachments []entities.Attachment
 	fileReaders := make(map[string]io.Reader)
 
@@ -60,28 +61,28 @@ func (u *attachmentUsecase) CreateAttachments(documentID string, files map[strin
 	return nil
 }
 
-func (u *attachmentUsecase) validateAndProcessFile(fileHeader *multipart.FileHeader, documentID string, attachments *[]entities.Attachment, fileReaders map[string]io.Reader) error {
+func (u *attachmentUsecase) validateAndProcessFile(fileHeader *multipart.FileHeader, documentID string, attachments *[]entities.Attachment, fileReaders map[string]io.Reader) *apperror.AppError {
 	if fileHeader.Size > constant.MAX_FILE_SIZE {
-		return fmt.Errorf("file size exceeds the allowed limit")
+		return apperror.BadRequestError("file size exceeds the allowed limit")
 	}
 
 	src, err := fileHeader.Open()
 	if err != nil {
 		u.logger.Named("CreateAttachments").Error("Open uploaded file: ", zap.Error(err))
-		return fmt.Errorf("failed to open the uploaded file: %w", err)
+		return apperror.InternalServerError(fmt.Sprintf("failed to open the uploaded file: %s", err.Error()))
 	}
 	defer src.Close()
 
 	typeID, err := utils.ValidateFileType(fileHeader.Filename)
 	if err != nil {
 		u.logger.Named("CreateAttachments").Error("Validate file type: ", zap.Error(err))
-		return fmt.Errorf("invalid file type for %s: %w", fileHeader.Filename, err)
+		return apperror.BadRequestError(fmt.Sprintf("invalid file type for %s: %s", fileHeader.Filename, err.Error()))
 	}
 
 	fileName := fileHeader.Filename
 	name, err := u.generateNewFileName(fileName)
 	if err != nil {
-		return err
+		return apperror.InternalServerError(fmt.Sprintf("failed to generate new file name: %s", err.Error()))
 	}
 
 	attachment := entities.Attachment{
@@ -108,19 +109,19 @@ func (u *attachmentUsecase) generateNewFileName(fileName string) (string, error)
 	return fmt.Sprintf("%s-%s.%s", nameWithoutExt, randomString, ext), nil
 }
 
-func (u *attachmentUsecase) uploadAndSaveAttachments(fileReaders map[string]io.Reader, attachments []entities.Attachment) error {
+func (u *attachmentUsecase) uploadAndSaveAttachments(fileReaders map[string]io.Reader, attachments []entities.Attachment) *apperror.AppError {
 	if err := u.attachmentRepository.UploadAttachmentToS3(u.cfg.GetAws().BucketName, fileReaders); err != nil {
 		u.logger.Named("CreateAttachments").Error("Upload attachment to s3", zap.Error(err))
-		return err
+		return apperror.InternalServerError(fmt.Sprintf("failed to upload attachment to s3: %s", err.Error()))
 	}
 
 	if err := u.attachmentRepository.InsertAttachments(&attachments); err != nil {
-		return err
+		return apperror.InternalServerError(fmt.Sprintf("failed to insert attachments: %s", err.Error()))
 	}
 
 	return nil
 }
 
-func (u *attachmentUsecase) DeleteAttachment(ID string) error {
+func (u *attachmentUsecase) DeleteAttachment(ID string) *apperror.AppError {
 	return nil
 }
