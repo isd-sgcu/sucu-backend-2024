@@ -39,7 +39,7 @@ func (u *userUsecase) GetUserByID(req *dtos.UserDTO, userID string) (*dtos.UserD
 }
 
 func (u *userUsecase) CreateUser(req *dtos.UserDTO, createUserDTO *dtos.CreateUserDTO) *apperror.AppError {
-	role, err := utils.GetRole(createUserDTO.Role)
+	role, err := utils.GetRole(req.Role)
 	if err != nil {
 		u.logger.Named("CreateUser").Error(constant.ErrInvalidRole, zap.String("role", createUserDTO.Role), zap.Error(err))
 		return apperror.BadRequestError(constant.ErrInvalidRole)
