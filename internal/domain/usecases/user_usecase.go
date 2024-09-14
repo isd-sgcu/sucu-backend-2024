@@ -90,19 +90,30 @@ func (u *userUsecase) DeleteUserByID(req *dtos.UserDTO, userID string) *apperror
 // admin method
 
 func (u *userUsecase) UpdateProfile(req *dtos.UserDTO, updateUserDTO *dtos.UpdateUserDTO) *apperror.AppError {
-	hashedPassword, err := utils.HashPassword(updateUserDTO.Password)
-	if err != nil {
-		u.logger.Named("UpdateProfile").Error(constant.ErrHashPasswordFailed, zap.String("userID", req.ID), zap.Error(err))
-		return apperror.InternalServerError(constant.ErrHashPasswordFailed)
+	updateFields := make(map[string]interface{})
+
+	if updateUserDTO.FirstName != "" {
+		updateFields["first_name"] = updateUserDTO.FirstName
 	}
 
-	updateUser := &dtos.UpdateUserDTO{
-		FirstName: updateUserDTO.FirstName,
-		LastName:  updateUserDTO.LastName,
-		Password:  hashedPassword,
+	if updateUserDTO.LastName != "" {
+		updateFields["last_name"] = updateUserDTO.LastName
 	}
 
-	err = u.userRepository.UpdateUserByID(req.ID, updateUser)
+	if updateUserDTO.Password != "" {
+		hashedPassword, err := utils.HashPassword(updateUserDTO.Password)
+		if err != nil {
+			u.logger.Named("UpdateProfile").Error(constant.ErrHashPasswordFailed, zap.String("userID", req.ID), zap.Error(err))
+			return apperror.InternalServerError(constant.ErrHashPasswordFailed)
+		}
+		updateFields["password"] = hashedPassword
+	}
+
+	if len(updateFields) == 0 {
+		return apperror.BadRequestError("No fields to update")
+	}
+
+	err := u.userRepository.UpdateUserByID(req.ID, updateFields)
 	if err != nil {
 		u.logger.Named("UpdateProfile").Error(constant.ErrUpdateUserByID, zap.String("userID", req.ID), zap.Error(err))
 		return apperror.BadRequestError(constant.ErrUpdateUserByID)
