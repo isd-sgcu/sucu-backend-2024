@@ -5,9 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/usecases"
-	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/response"
-	"github.com/isd-sgcu/sucu-backend-2024/utils/constant"
 )
 
 type MiddlewareHandler struct {
@@ -56,53 +54,5 @@ func (h *MiddlewareHandler) IsLogin(c *fiber.Ctx) error {
 	c.Locals("user", userDTO)
 
 	// move to next handlers
-	return c.Next()
-}
-
-func (h *MiddlewareHandler) SGCUAdmin(c *fiber.Ctx) error {
-	h.IsLogin(c)
-
-	userDTO := c.Locals("user").(*dtos.UserDTO)
-	if userDTO.Role != constant.SGCU_ADMIN && userDTO.Role != constant.SGCU_SUPERADMIN {
-		resp := response.NewResponseFactory(response.ERROR, errors.New("Forbidden").Error())
-		return resp.SendResponse(c, fiber.StatusForbidden)
-	}
-
-	return c.Next()
-}
-
-func (h *MiddlewareHandler) SGCUSuperAdmin(c *fiber.Ctx) error {
-	h.IsLogin(c)
-
-	userDTO := c.Locals("user").(*dtos.UserDTO)
-	if userDTO.Role != constant.SGCU_SUPERADMIN {
-		resp := response.NewResponseFactory(response.ERROR, errors.New("Forbidden").Error())
-		return resp.SendResponse(c, fiber.StatusForbidden)
-	}
-
-	return c.Next()
-}
-
-func (h *MiddlewareHandler) SCCUAdmin(c *fiber.Ctx) error {
-	h.IsLogin(c)
-
-	userDTO := c.Locals("user").(*dtos.UserDTO)
-	if userDTO.Role != constant.SCCU_ADMIN && userDTO.Role != constant.SCCU_SUPERADMIN {
-		resp := response.NewResponseFactory(response.ERROR, errors.New("Forbidden").Error())
-		return resp.SendResponse(c, fiber.StatusForbidden)
-	}
-
-	return c.Next()
-}
-
-func (h *MiddlewareHandler) SCCUSuperAdmin(c *fiber.Ctx) error {
-	h.IsLogin(c)
-
-	userDTO := c.Locals("user").(*dtos.UserDTO)
-	if userDTO.Role != constant.SCCU_SUPERADMIN {
-		resp := response.NewResponseFactory(response.ERROR, errors.New("Forbidden").Error())
-		return resp.SendResponse(c, fiber.StatusForbidden)
-	}
-
 	return c.Next()
 }
