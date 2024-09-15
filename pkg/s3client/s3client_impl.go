@@ -56,6 +56,7 @@ func (c *s3Client) UploadFile(bucketName, objectKey string, buffer *bytes.Reader
 		Bucket: aws.String(bucketName),
 		Key:    aws.String(objectKey),
 		Body:   buffer,
+		ACL:    aws.String(s3.ObjectCannedACLPublicRead),
 	})
 	if err != nil {
 		return fmt.Errorf("failed to upload file, %v", err)
