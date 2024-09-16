@@ -126,7 +126,7 @@ func (s *FiberHttpServer) initUserRouter(router fiber.Router, httpHandler handle
 func (s *FiberHttpServer) initAttachmentRouter(router fiber.Router, httpHandler handlers.Handler) {
 	attachmentRouter := router.Group("/attachments")
 
-	attachmentRouter.Get("/:document_id", httpHandler.Attachment().CreateAttachments)
+	attachmentRouter.Post("/:document_id", httpHandler.Attachment().CreateAttachments)
 }
 
 func (s *FiberHttpServer) initDocumentRouter(router fiber.Router, httpHandler handlers.Handler) {

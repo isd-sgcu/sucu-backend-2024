@@ -5,6 +5,7 @@ import (
 
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/s3client"
+	"github.com/isd-sgcu/sucu-backend-2024/utils"
 	"gorm.io/gorm"
 )
 
@@ -36,7 +37,11 @@ func (r *attachmentRepository) InsertAttachments(attachments *[]entities.Attachm
 
 func (r *attachmentRepository) UploadAttachmentToS3(bucketName string, fileReaders map[string]io.Reader) error {
 	for fileName, file := range fileReaders {
-		if err := r.s3.UploadFile(bucketName, fileName, file); err != nil {
+		buffer, err := utils.ToBytesReader(file)
+		if err != nil {
+			return err
+		}
+		if err := r.s3.UploadFile(bucketName, fileName, buffer); err != nil {
 			return err
 		}
 	}

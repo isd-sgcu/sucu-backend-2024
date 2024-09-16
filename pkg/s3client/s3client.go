@@ -1,9 +1,9 @@
 package s3client
 
-import "io"
+import "bytes"
 
 type S3Client interface {
-	UploadFile(bucketName, objectKey string, file io.Reader) error
+	UploadFile(bucketName, objectKey string, buffer *bytes.Reader) error
 	DownloadFile(bucketName, objectKey, filePath string) error
 	DeleteFile(bucketName, objectKey string) error
 }
