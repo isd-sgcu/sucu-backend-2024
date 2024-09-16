@@ -34,9 +34,9 @@ func (r *documentRepository) InsertDocument(document *entities.Document) error {
 }
 
 func (r *documentRepository) UpdateDocumentByID(ID string, updateMap interface{}) error {
-	return nil
+	return r.db.Model(&entities.Document{}).Where("id = ?", ID).Updates(updateMap).Error
 }
 
 func (r *documentRepository) DeleteUserByID(ID string) error {
-	return nil
+	return r.db.Where("id = ?", ID).Delete(&entities.Document{}).Error
 }
