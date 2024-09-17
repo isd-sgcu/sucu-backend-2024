@@ -4,7 +4,6 @@ import (
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/repositories"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/config"
-	"github.com/isd-sgcu/sucu-backend-2024/utils"
 	"github.com/isd-sgcu/sucu-backend-2024/utils/dtoconv"
 	"go.uber.org/zap"
 )

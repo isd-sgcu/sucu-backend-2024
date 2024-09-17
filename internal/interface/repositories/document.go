@@ -1,10 +1,13 @@
 package repositories
 
-import "github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
+import (
+	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
+	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
+)
 
 type DocumentRepository interface {
 	// client side
-	FindAllDocuments() (*[]entities.Document, error)
+	FindAllDocuments(args *dtos.FindAllDocumentsDTO) (*[]entities.Document, error)
 	FindDocumentByID(ID string) (*entities.Document, error)
 
 	// back office

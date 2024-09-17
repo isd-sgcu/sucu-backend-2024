@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
+	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"gorm.io/gorm"
 )
 
@@ -15,9 +16,18 @@ func NewDocumentRepository(db *gorm.DB) DocumentRepository {
 	}
 }
 
+
 // client side
-func (r *documentRepository) FindAllDocuments() (*[]entities.Document, error) {
-	return nil, nil
+func (r *documentRepository) FindAllDocuments(args *dtos.FindAllDocumentsDTO) (*[]entities.Document, error) {
+	var documents []entities.Document
+	result := r.db.Offset(args.Page * args.Limit).Limit(args.Limit).Where("").Find(&documents)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	
+
+	return &documents, nil
 }
 
 func (r *documentRepository) FindDocumentByID(ID string) (*entities.Document, error) {
