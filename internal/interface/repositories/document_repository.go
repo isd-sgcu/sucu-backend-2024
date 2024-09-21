@@ -30,7 +30,7 @@ func (r *documentRepository) FindDocumentsByRole(roles *[]string) (*[]entities.D
 }
 
 func (r *documentRepository) InsertDocument(document *entities.Document) error {
-	return nil
+	return r.db.Create(document).Error
 }
 
 func (r *documentRepository) UpdateDocumentByID(ID string, updateMap interface{}) error {
