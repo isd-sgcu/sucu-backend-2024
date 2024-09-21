@@ -10,6 +10,7 @@ type handler struct {
 	AuthHandler       *AuthHandler
 	UserHandler       *UserHandler
 	AttachmentHandler *AttachmentHandler
+	DocumentHandler   *DocumentHandler
 }
 
 func NewHandler(usecases usecases.Usecase, validator validator.DTOValidator) Handler {
@@ -18,6 +19,7 @@ func NewHandler(usecases usecases.Usecase, validator validator.DTOValidator) Han
 		AuthHandler:       NewAuthHandler(usecases.Auth()),
 		UserHandler:       NewUserHandler(usecases.User(), validator),
 		AttachmentHandler: NewAttachmentHandler(usecases.Attachment()),
+		DocumentHandler:   NewDocumentHandler(usecases.Document()),
 	}
 }
 
@@ -35,4 +37,8 @@ func (h *handler) User() *UserHandler {
 
 func (h *handler) Attachment() *AttachmentHandler {
 	return h.AttachmentHandler
+}
+
+func (h *handler) Document() *DocumentHandler {
+	return h.DocumentHandler
 }

@@ -3,6 +3,8 @@ package handlers
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/usecases"
+	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
+	"github.com/isd-sgcu/sucu-backend-2024/pkg/response"
 )
 
 type DocumentHandler struct {
@@ -63,7 +65,24 @@ func (h *DocumentHandler) GetDocumentsByRole(c *fiber.Ctx) error {
 // @Failure 500 {object} response.Response
 // @Router /documents [post]
 func (h *DocumentHandler) CreateDocument(c *fiber.Ctx) error {
-	return nil
+	var CreateDocumentDTO dtos.CreateDocumentDTO
+	if err := c.BodyParser(&CreateDocumentDTO); err != nil {
+		resp := response.NewResponseFactory(response.ERROR, err.Error())
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	// user := c.Locals("user").(*dtos.UserDTO)
+	// CreateDocumentDTO.UserID = user.ID
+	CreateDocumentDTO.UserID = "6633221100"
+
+	apperr := h.documentUsecase.CreateDocument(&CreateDocumentDTO)
+	if apperr != nil {
+		resp := response.NewResponseFactory(response.ERROR, apperr.Error())
+		return resp.SendResponse(c, apperr.HttpCode)
+	}
+
+	resp := response.NewResponseFactory(response.SUCCESS, "Document created successfully")
+	return resp.SendResponse(c, fiber.StatusCreated)
 }
 
 // UpdateDocumentByID godoc
