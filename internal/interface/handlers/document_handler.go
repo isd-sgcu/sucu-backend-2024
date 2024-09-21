@@ -71,9 +71,8 @@ func (h *DocumentHandler) CreateDocument(c *fiber.Ctx) error {
 		return resp.SendResponse(c, fiber.StatusBadRequest)
 	}
 
-	// user := c.Locals("user").(*dtos.UserDTO)
-	// CreateDocumentDTO.UserID = user.ID
-	CreateDocumentDTO.UserID = "6633221100"
+	user := c.Locals("user").(*dtos.UserDTO)
+	CreateDocumentDTO.UserID = user.ID
 
 	apperr := h.documentUsecase.CreateDocument(&CreateDocumentDTO)
 	if apperr != nil {
