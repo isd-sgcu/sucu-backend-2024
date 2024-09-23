@@ -1,19 +1,24 @@
 package handlers
 
 import (
+	"strings"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/usecases"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/response"
+	"github.com/isd-sgcu/sucu-backend-2024/pkg/validator"
 )
 
 type DocumentHandler struct {
 	documentUsecase usecases.DocumentUsecase
+	validator       validator.DTOValidator
 }
 
-func NewDocumentHandler(documentUsecase usecases.DocumentUsecase) *DocumentHandler {
+func NewDocumentHandler(documentUsecase usecases.DocumentUsecase, validator validator.DTOValidator) *DocumentHandler {
 	return &DocumentHandler{
 		documentUsecase: documentUsecase,
+		validator:       validator,
 	}
 }
 
@@ -73,6 +78,11 @@ func (h *DocumentHandler) CreateDocument(c *fiber.Ctx) error {
 
 	user := c.Locals("user").(*dtos.UserDTO)
 	CreateDocumentDTO.UserID = user.ID
+
+	if errs := h.validator.Validate(CreateDocumentDTO); len(errs) > 0 {
+		resp := response.NewResponseFactory(response.ERROR, strings.Join(errs, ", "))
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
 
 	apperr := h.documentUsecase.CreateDocument(&CreateDocumentDTO)
 	if apperr != nil {

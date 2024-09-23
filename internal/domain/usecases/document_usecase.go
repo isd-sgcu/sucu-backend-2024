@@ -41,21 +41,11 @@ func (u *documentUsecase) GetDocumentsByRole(req *dtos.UserDTO) (*[]dtos.Documen
 	return nil, nil
 }
 
-func (u *documentUsecase) CreateDocument(document *dtos.CreateDocumentDTO) *apperror.AppError { // TODO: implement this
-	// validate document
-	if document.Title == "" || document.Content == "" || document.UserID == "" || document.TypeID == "" {
-		u.logger.Named("CreateDocument").Error("Invalid document", zap.String("title", document.Title), zap.String("content", document.Content), zap.String("user_id", document.UserID), zap.String("type_id", document.TypeID))
-		return apperror.BadRequestError("invalid document")
-	}
-
+func (u *documentUsecase) CreateDocument(document *dtos.CreateDocumentDTO) *apperror.AppError {
 	// validate user
-	existingUser, err := u.userRepository.FindUserByID(document.UserID)
+	_, err := u.userRepository.FindUserByID(document.UserID)
 	if err != nil {
-		u.logger.Named("CreateDocument").Error(constant.ErrFindUserByID, zap.String("user_id", document.UserID), zap.Error(err))
-		return apperror.InternalServerError(constant.ErrFindUserByID)
-	}
-	if existingUser == nil {
-		u.logger.Named("CreateDocument").Error(constant.ErrUserNotFound, zap.String("user_id", document.UserID))
+		u.logger.Named("CreateDocument").Error(constant.ErrUserNotFound, zap.String("user_id", document.UserID), zap.Error(err))
 		return apperror.NotFoundError(constant.ErrUserNotFound)
 	}
 
