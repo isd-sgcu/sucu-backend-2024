@@ -5,4 +5,5 @@ type Handler interface {
 	Auth() *AuthHandler
 	User() *UserHandler
 	Attachment() *AttachmentHandler
+	Document() *DocumentHandler
 }

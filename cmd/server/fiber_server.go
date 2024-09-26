@@ -130,4 +130,7 @@ func (s *FiberHttpServer) initAttachmentRouter(router fiber.Router, httpHandler 
 }
 
 func (s *FiberHttpServer) initDocumentRouter(router fiber.Router, httpHandler handlers.Handler) {
+	documentRouter := router.Group("/documents")
+
+	documentRouter.Post("/", httpHandler.Middleware().IsLogin, httpHandler.Document().CreateDocument)
 }
