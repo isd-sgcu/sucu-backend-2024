@@ -92,7 +92,28 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // @Failure 500 {object} response.Response
 // @Router /users/{user_id} [put]
 func (h *UserHandler) UpdateUserByID(c *fiber.Ctx) error {
-	return nil
+	var updateUserDTO dtos.UpdateUserDTO
+	if err := c.BodyParser(&updateUserDTO); err != nil {
+		resp := response.NewResponseFactory(response.ERROR, err.Error())
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	if errs := h.validator.Validate(updateUserDTO); len(errs) > 0 {
+		resp := response.NewResponseFactory(response.ERROR, strings.Join(errs, ", "))
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	req := c.Locals("user").(*dtos.UserDTO)
+	userID := c.Params("user_id")
+
+	apperr := h.userUsecase.UpdateUserByID(req, userID, &updateUserDTO)
+	if apperr != nil {
+		resp := response.NewResponseFactory(response.ERROR, apperr.Error())
+		return resp.SendResponse(c, apperr.HttpCode)
+	}
+
+	resp := response.NewResponseFactory(response.SUCCESS, updateUserDTO)
+	return resp.SendResponse(c, fiber.StatusOK)
 }
 
 // DeleteUserByID godoc
