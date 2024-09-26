@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"errors"
+	"time"
 
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
@@ -103,6 +104,7 @@ func (u *userUsecase) UpdateUserByID(req *dtos.UserDTO, userID string, updateUse
 	if len(updateFields) == 0 {
 		return apperror.BadRequestError("No fields to update")
 	}
+	updateFields["updated_at"] = time.Now()
 
 	role, err := utils.GetRole(req.Role)
 	if err != nil {
@@ -111,9 +113,9 @@ func (u *userUsecase) UpdateUserByID(req *dtos.UserDTO, userID string, updateUse
 	}
 
 	existingUser, err := u.userRepository.FindUserByID(userID)
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		u.logger.Named("UpdateUserByID").Error(constant.ErrFindUserByID, zap.String("userID", userID), zap.Error(err))
-		return apperror.NotFoundError(constant.ErrFindUserByID)
+	if err != nil {
+		u.logger.Named("UpdateUserByID").Error(constant.ErrUserNotFound, zap.String("userID", userID), zap.Error(err))
+		return apperror.NotFoundError(constant.ErrUserNotFound)
 	}
 
 	if existingUser.RoleID != role {
