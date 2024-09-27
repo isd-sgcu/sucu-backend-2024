@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"errors"
+	"time"
 
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
@@ -80,6 +81,55 @@ func (u *userUsecase) CreateUser(req *dtos.UserDTO, createUserDTO *dtos.CreateUs
 }
 
 func (u *userUsecase) UpdateUserByID(req *dtos.UserDTO, userID string, updateUserDTO *dtos.UpdateUserDTO) *apperror.AppError {
+	updateFields := make(map[string]interface{})
+
+	if updateUserDTO.FirstName != "" {
+		updateFields["first_name"] = updateUserDTO.FirstName
+	}
+
+	if updateUserDTO.LastName != "" {
+		updateFields["last_name"] = updateUserDTO.LastName
+	}
+
+	if updateUserDTO.Password != "" {
+		hashedPassword, err := utils.HashPassword(updateUserDTO.Password)
+		if err != nil {
+			u.logger.Named("UpdateProfile").Error(constant.ErrHashPasswordFailed, zap.String("userID", req.ID), zap.Error(err))
+			return apperror.InternalServerError(constant.ErrHashPasswordFailed)
+		}
+		updateFields["password"] = hashedPassword
+		updateUserDTO.Password = hashedPassword
+	}
+
+	if len(updateFields) == 0 {
+		return apperror.BadRequestError("No fields to update")
+	}
+	updateFields["updated_at"] = time.Now()
+
+	role, err := utils.GetRole(req.Role)
+	if err != nil {
+		u.logger.Named("UpdateUserByID").Error(constant.ErrInvalidRole, zap.Error(err))
+		return apperror.BadRequestError(constant.ErrInvalidRole)
+	}
+
+	existingUser, err := u.userRepository.FindUserByID(userID)
+	if err != nil {
+		u.logger.Named("UpdateUserByID").Error(constant.ErrUserNotFound, zap.String("userID", userID), zap.Error(err))
+		return apperror.NotFoundError(constant.ErrUserNotFound)
+	}
+
+	if existingUser.RoleID != role {
+		u.logger.Named("UpdateUserByID").Error(constant.ErrInvalidRole, zap.Error(err))
+		return apperror.BadRequestError(constant.ErrInvalidRole)
+	}
+
+	err = u.userRepository.UpdateUserByID(userID, updateFields)
+	if err != nil {
+		u.logger.Named("UpdateUserByID").Error(constant.ErrUpdateUserByID, zap.String("userID", userID), zap.Error(err))
+		return apperror.InternalServerError(constant.ErrUpdateUserByID)
+	}
+
+	u.logger.Named("UpdateUserByID").Info("Success: ", zap.String("user_id", userID))
 	return nil
 }
 

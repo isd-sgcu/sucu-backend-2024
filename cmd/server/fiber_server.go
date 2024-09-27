@@ -121,6 +121,7 @@ func (s *FiberHttpServer) initUserRouter(router fiber.Router, httpHandler handle
 	userRouter.Get("/", httpHandler.User().GetAllUsers)
 	userRouter.Post("/", httpHandler.Middleware().IsLogin, httpHandler.Middleware().SuperAdmin, httpHandler.User().CreateUser)
 	userRouter.Patch("/", httpHandler.Middleware().IsLogin, httpHandler.User().UpdateProfile)
+	userRouter.Put("/:user_id", httpHandler.Middleware().IsLogin, httpHandler.Middleware().SuperAdmin, httpHandler.User().UpdateUserByID)
 }
 
 func (s *FiberHttpServer) initAttachmentRouter(router fiber.Router, httpHandler handlers.Handler) {
