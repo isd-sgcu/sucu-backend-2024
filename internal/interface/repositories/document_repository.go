@@ -37,6 +37,6 @@ func (r *documentRepository) UpdateDocumentByID(ID string, updateMap interface{}
 	return r.db.Model(&entities.Document{}).Where("id = ?", ID).Updates(updateMap).Error
 }
 
-func (r *documentRepository) DeleteUserByID(ID string) error {
+func (r *documentRepository) DeleteDocumentByID(ID string) error {
 	return r.db.Where("id = ?", ID).Delete(&entities.Document{}).Error
 }

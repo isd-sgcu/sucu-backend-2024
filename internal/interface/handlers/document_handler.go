@@ -3,6 +3,8 @@ package handlers
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/usecases"
+	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
+	"github.com/isd-sgcu/sucu-backend-2024/pkg/response"
 )
 
 type DocumentHandler struct {
@@ -79,7 +81,32 @@ func (h *DocumentHandler) CreateDocument(c *fiber.Ctx) error {
 // @Failure 500 {object} response.Response
 // @Router /documents/{document_id} [put]
 func (h *DocumentHandler) UpdateDocumentByID(c *fiber.Ctx) error {
-	return nil
+	documentID := c.Params("document_id")
+	if documentID == "" {
+		resp := response.NewResponseFactory(response.ERROR, "Document ID is required")
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	// Parse the request body into UpdateDocumentDTO
+	var updateDocumentDTO dtos.UpdateDocumentDTO
+	if err := c.BodyParser(&updateDocumentDTO); err != nil {
+		resp := response.NewResponseFactory(response.ERROR, "Invalid request body")
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	err := h.documentUsecase.UpdateDocumentByID(documentID, updateDocumentDTO)
+	if err != nil {
+		if err.Error() == "document not found" {
+			resp := response.NewResponseFactory(response.ERROR, "Document not found")
+			return resp.SendResponse(c, fiber.StatusNotFound)
+		}
+		resp := response.NewResponseFactory(response.ERROR, "Failed to update document")
+		return resp.SendResponse(c, fiber.StatusInternalServerError)
+	}
+
+	// Return success response
+	resp := response.NewResponseFactory(response.SUCCESS, "Document updated successfully")
+	return resp.SendResponse(c, fiber.StatusOK)
 }
 
 // DeleteDocumentByID godoc
@@ -92,5 +119,21 @@ func (h *DocumentHandler) UpdateDocumentByID(c *fiber.Ctx) error {
 // @Failure 500 {object} response.Response
 // @Router /documents/{document_id} [delete]
 func (h *DocumentHandler) DeleteDocumentByID(c *fiber.Ctx) error {
-	return nil
+	documentID := c.Params("document_id")
+	if documentID == "" {
+		resp := response.NewResponseFactory(response.ERROR, "Document ID is required")
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	err := h.documentUsecase.DeleteDocumentByID(documentID)
+	if err != nil {
+		if err.Error() == "document not found" {
+			resp := response.NewResponseFactory(response.ERROR, "Document not found")
+			return resp.SendResponse(c, fiber.StatusNotFound)
+		}
+		resp := response.NewResponseFactory(response.ERROR, "Failed to delete document")
+		return resp.SendResponse(c, fiber.StatusInternalServerError)
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
 }
