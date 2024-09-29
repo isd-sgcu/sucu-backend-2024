@@ -9,6 +9,7 @@ import (
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/response"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/validator"
+	"github.com/isd-sgcu/sucu-backend-2024/utils/constant"
 )
 
 type DocumentHandler struct {
@@ -37,8 +38,8 @@ func (h *DocumentHandler) GetAllDocuments(c *fiber.Ctx) error {
 		Query:        c.Query("query"),
 		Organization: c.Query("organization"),
 		DocumentType: c.Query("document_type"),
-		StartTime:    c.Query("Start_time", time.Date(1, 1, 1, 0, 0, 0, 0, time.UTC).String()),
-		EndTime:      c.Query("end_time", time.Now().String()),
+		StartTime:    c.Query("Start_time", time.Time{}.UTC().Format(constant.DATE_FORMAT)),
+		EndTime:      c.Query("end_time", time.Now().UTC().Format(constant.DATE_FORMAT)),
 	}
 
 	paginationResp, err := h.documentUsecase.GetAllDocuments(&getallDocumentsDTO)
@@ -48,7 +49,7 @@ func (h *DocumentHandler) GetAllDocuments(c *fiber.Ctx) error {
 	}
 
 	resp := response.NewResponseFactory(response.SUCCESS, paginationResp)
-	return resp.SendResponse(c, fiber.StatusCreated)
+	return resp.SendResponse(c, fiber.StatusOK)
 }
 
 // GetDocumentByID godoc
