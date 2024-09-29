@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/usecases"
@@ -30,49 +31,24 @@ func NewDocumentHandler(documentUsecase usecases.DocumentUsecase, validator vali
 // @Failure 500 {object} response.Response
 // @Router /documents [get]
 func (h *DocumentHandler) GetAllDocuments(c *fiber.Ctx) error {
-	 getDocumentsDTO := dtos.GetDocumentsDTO{
-		Page: c.QueryInt("page", 1),
-		Limit: c.QueryInt("limit", 10),
-		Query: c.Query("query"),
-		Org: c.Query("org"),
-		Type: c.Query("type"),
+	getallDocumentsDTO := dtos.GetAllDocumentsDTO{
+		Page:         c.QueryInt("page", 1),
+		PageSize:     c.QueryInt("page_size", 10),
+		Query:        c.Query("query"),
+		Organization: c.Query("organization"),
+		DocumentType: c.Query("document_type"),
+		StartTime:    c.Query("Start_time", time.Date(1, 1, 1, 0, 0, 0, 0, time.UTC).String()),
+		EndTime:      c.Query("end_time", time.Now().String()),
 	}
 
-	if getDocumentsDTO.Page < 1 {
-		resp := response.NewResponseFactory(response.ERROR, errors.New("page need to be greater than 0"))
-		resp.SendResponse(c, fiber.StatusBadRequest)
-	}
-
-	if getDocumentsDTO.Limit >= 20 || getDocumentsDTO.Limit < 0 {
-		resp := response.NewResponseFactory(response.ERROR, errors.New("limit need to be between 0 and 20"))
-		resp.SendResponse(c, fiber.StatusBadRequest)		
-	}
-
-	if getDocumentsDTO.Org != "sccu" && getDocumentsDTO.Org != "sgcu" && getDocumentsDTO.Org != "" {
-		resp := response.NewResponseFactory(response.ERROR, errors.New("org need to be either sccu, sgcu or empty"))
-		resp.SendResponse(c, fiber.StatusBadRequest)
-	}
-
-	if getDocumentsDTO.Type != "statistic" && getDocumentsDTO.Type != "budget" && getDocumentsDTO.Type != "announcement" && getDocumentsDTO.Type != "" {
-		resp := response.NewResponseFactory(response.ERROR, errors.New("type need to be either statistic, budget, announcement or empty"))
-		resp.SendResponse(c, fiber.StatusBadRequest)
-	}
-
-	documentsDTO, err := h.documentUsecase.GetAllDocuments(&getDocumentsDTO)
+	paginationResp, err := h.documentUsecase.GetAllDocuments(&getallDocumentsDTO)
 	if err != nil {
 		resp := response.NewResponseFactory(response.ERROR, err.Error())
-		resp.SendResponse(c, fiber.StatusInternalServerError)
+		return resp.SendResponse(c, err.HttpCode)
 	}
 
-	paginationResponseDTO := dtos.PaginationResponse{
-		Data: *documentsDTO,
-		Page: fmt.Sprintf("%v", getDocumentsDTO.Page),
-		Limit: fmt.Sprintf("%v", getDocumentsDTO.Limit),
-		TotalPage: fmt.Sprintf("%v", len(*documentsDTO)),
-	}
-
-	resp := response.NewResponseFactory(response.SUCCESS, paginationResponseDTO)
-	return resp.SendResponse(c, fiber.StatusAccepted)
+	resp := response.NewResponseFactory(response.SUCCESS, paginationResp)
+	return resp.SendResponse(c, fiber.StatusCreated)
 }
 
 // GetDocumentByID godoc
