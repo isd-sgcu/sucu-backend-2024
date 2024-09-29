@@ -1,8 +1,9 @@
 package repositories
 
 import (
+	"time"
+
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
-	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"gorm.io/gorm"
 )
 
@@ -16,16 +17,33 @@ func NewDocumentRepository(db *gorm.DB) DocumentRepository {
 	}
 }
 
+type FindAllDocumentsArgs struct {
+	Offset int
+	Limit int
+	DocumentType string
+	Organization string
+	Query string
+	StartTime time.Time
+	EndTime time.Time
+}
 
 // client side
-func (r *documentRepository) FindAllDocuments(args *dtos.FindAllDocumentsDTO) (*[]entities.Document, error) {
+func (r *documentRepository) FindAllDocuments(args FindAllDocumentsArgs) (*[]entities.Document, error) {
 	var documents []entities.Document
-	result := r.db.Offset(args.Page * args.Limit).Limit(args.Limit).Where("").Find(&documents)
-	if result.Error != nil {
-		return nil, result.Error
-	}
 
+	err := r.db.Joins("user").Where(`documents.type LIKE %?% 
+									AND documents.content LIKE %?% 
+									AND documents.createdAt BETWEEN ? AND ? 
+									AND users.role_id LIKE %?%`, 
+									args.DocumentType, 
+									args.Query, 
+									args.StartTime, 
+									args.EndTime, 
+									args.Organization).Offset(args.Offset).Limit(args.Limit).Find(&documents).Error	
 	
+	if err != nil {
+		return nil, err
+	}
 
 	return &documents, nil
 }
