@@ -1,22 +1,24 @@
 package handlers
 
 import (
-	"errors"
-	"fmt"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/usecases"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/response"
+	"github.com/isd-sgcu/sucu-backend-2024/pkg/validator"
 )
 
 type DocumentHandler struct {
 	documentUsecase usecases.DocumentUsecase
+	validator       validator.DTOValidator
 }
 
-func NewDocumentHandler(documentUsecase usecases.DocumentUsecase) *DocumentHandler {
+func NewDocumentHandler(documentUsecase usecases.DocumentUsecase, validator validator.DTOValidator) *DocumentHandler {
 	return &DocumentHandler{
 		documentUsecase: documentUsecase,
+		validator:       validator,
 	}
 }
 
@@ -110,7 +112,28 @@ func (h *DocumentHandler) GetDocumentsByRole(c *fiber.Ctx) error {
 // @Failure 500 {object} response.Response
 // @Router /documents [post]
 func (h *DocumentHandler) CreateDocument(c *fiber.Ctx) error {
-	return nil
+	var CreateDocumentDTO dtos.CreateDocumentDTO
+	if err := c.BodyParser(&CreateDocumentDTO); err != nil {
+		resp := response.NewResponseFactory(response.ERROR, err.Error())
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	user := c.Locals("user").(*dtos.UserDTO)
+	CreateDocumentDTO.UserID = user.ID
+
+	if errs := h.validator.Validate(CreateDocumentDTO); len(errs) > 0 {
+		resp := response.NewResponseFactory(response.ERROR, strings.Join(errs, ", "))
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	apperr := h.documentUsecase.CreateDocument(&CreateDocumentDTO)
+	if apperr != nil {
+		resp := response.NewResponseFactory(response.ERROR, apperr.Error())
+		return resp.SendResponse(c, apperr.HttpCode)
+	}
+
+	resp := response.NewResponseFactory(response.SUCCESS, "Document created successfully")
+	return resp.SendResponse(c, fiber.StatusCreated)
 }
 
 // UpdateDocumentByID godoc

@@ -22,12 +22,12 @@ type DocumentDTO struct {
 
 type CreateDocumentDTO struct {
 	ID      string  `json:"id"`
-	Title   string  `json:"title"`
-	Content string  `json:"content"`
+	Title   string  `json:"title" validate:"required"`
+	Content string  `json:"content" validate:"required"`
 	Banner  *string `json:"banner"`
 	Cover   *string `json:"cover"`
-	UserID  string  `json:"user_id"`
-	TypeID  string  `json:"type_id"`
+	UserID  string  `json:"user_id" validate:"required"`
+	TypeID  string  `json:"type_id" validate:"required"`
 }
 
 type UpdateDocumentDTO struct {

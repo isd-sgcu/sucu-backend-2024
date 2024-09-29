@@ -69,10 +69,10 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	}
 
 	req := c.Locals("user").(*dtos.UserDTO)
-	err := h.userUsecase.CreateUser(req, &createUserDTO)
-	if err != nil {
-		resp := response.NewResponseFactory(response.ERROR, err.Error())
-		return resp.SendResponse(c, fiber.StatusInternalServerError)
+	apperr := h.userUsecase.CreateUser(req, &createUserDTO)
+	if apperr != nil {
+		resp := response.NewResponseFactory(response.ERROR, apperr.Error())
+		return resp.SendResponse(c, apperr.HttpCode)
 	}
 
 	resp := response.NewResponseFactory(response.SUCCESS, createUserDTO)
@@ -92,7 +92,28 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // @Failure 500 {object} response.Response
 // @Router /users/{user_id} [put]
 func (h *UserHandler) UpdateUserByID(c *fiber.Ctx) error {
-	return nil
+	var updateUserDTO dtos.UpdateUserDTO
+	if err := c.BodyParser(&updateUserDTO); err != nil {
+		resp := response.NewResponseFactory(response.ERROR, err.Error())
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	if errs := h.validator.Validate(updateUserDTO); len(errs) > 0 {
+		resp := response.NewResponseFactory(response.ERROR, strings.Join(errs, ", "))
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	req := c.Locals("user").(*dtos.UserDTO)
+	userID := c.Params("user_id")
+
+	apperr := h.userUsecase.UpdateUserByID(req, userID, &updateUserDTO)
+	if apperr != nil {
+		resp := response.NewResponseFactory(response.ERROR, apperr.Error())
+		return resp.SendResponse(c, apperr.HttpCode)
+	}
+
+	resp := response.NewResponseFactory(response.SUCCESS, updateUserDTO)
+	return resp.SendResponse(c, fiber.StatusOK)
 }
 
 // DeleteUserByID godoc
@@ -106,4 +127,38 @@ func (h *UserHandler) UpdateUserByID(c *fiber.Ctx) error {
 // @Router /users/{user_id} [delete]
 func (h *UserHandler) DeleteUserByID(c *fiber.Ctx) error {
 	return nil
+}
+
+// UpdateProfile godoc
+// @Summary Update user profile
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param user body dtos.UpdateUserDTO true "Updated user data"
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.Response
+// @Failure 404 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router / [patch]
+func (h *UserHandler) UpdateProfile(c *fiber.Ctx) error {
+	var updateProfile dtos.UpdateUserDTO
+	if err := c.BodyParser(&updateProfile); err != nil {
+		resp := response.NewResponseFactory(response.ERROR, err.Error())
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	if errs := h.validator.Validate(updateProfile); len(errs) > 0 {
+		resp := response.NewResponseFactory(response.ERROR, strings.Join(errs, ", "))
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	req := c.Locals("user").(*dtos.UserDTO)
+	apperr := h.userUsecase.UpdateProfile(req, &updateProfile)
+	if apperr != nil {
+		resp := response.NewResponseFactory(response.ERROR, apperr.Error())
+		return resp.SendResponse(c, apperr.HttpCode)
+	}
+
+	resp := response.NewResponseFactory(response.SUCCESS, updateProfile)
+	return resp.SendResponse(c, fiber.StatusOK)
 }

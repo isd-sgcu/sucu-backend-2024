@@ -21,7 +21,7 @@ func NewUsecase(repo repositories.Repository, cfg config.Config, logger *zap.Log
 		AuthUsecase:       NewAuthUsecase(cfg, logger.Named("AuthSvc"), repo.User()),
 		UserUsecase:       NewUserUsecase(cfg, logger.Named("UserSvc"), repo.User()),
 		AttachmentUsecase: NewAttachmentUsecase(cfg, logger.Named("AttachmentSvc"), repo.Attachment()),
-		DocumentUsecase:   NewDocumentUsecase(cfg, logger.Named("DocumentSvc"), repo.Document()),
+		DocumentUsecase:   NewDocumentUsecase(cfg, logger.Named("DocumentSvc"), repo.Document(), repo.User()),
 	}
 }
 

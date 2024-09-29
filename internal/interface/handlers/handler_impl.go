@@ -19,7 +19,7 @@ func NewHandler(usecases usecases.Usecase, validator validator.DTOValidator) Han
 		AuthHandler:       NewAuthHandler(usecases.Auth()),
 		UserHandler:       NewUserHandler(usecases.User(), validator),
 		AttachmentHandler: NewAttachmentHandler(usecases.Attachment()),
-		DocumentHandler:   NewDocumentHandler(usecases.Document()),
+		DocumentHandler:   NewDocumentHandler(usecases.Document(), validator),
 	}
 }
 
