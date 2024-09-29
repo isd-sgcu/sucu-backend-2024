@@ -2,6 +2,8 @@ package usecases
 
 import (
 	"fmt"
+	"math"
+	"time"
 
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
@@ -10,7 +12,6 @@ import (
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/config"
 	"github.com/isd-sgcu/sucu-backend-2024/utils"
 	"github.com/isd-sgcu/sucu-backend-2024/utils/constant"
-	"github.com/isd-sgcu/sucu-backend-2024/utils/dtoconv"
 	"go.uber.org/zap"
 )
 
@@ -30,29 +31,71 @@ func NewDocumentUsecase(cfg config.Config, logger *zap.Logger, documentRepositor
 	}
 }
 
-func (u *documentUsecase) GetAllDocuments() (*[]dtos.DocumentDTO, *apperror.AppError) {
-	return nil, nil
-func (u *documentUsecase) GetAllDocuments(req *dtos.GetDocumentsDTO) (*[]dtos.DocumentDTO, error) {
-	findAllDocumentsDTO := dtos.FindAllDocumentsDTO{
-		Page: req.Page,
-		Limit: req.Limit,
-		Query: req.Query,
-		Org: req.Org,
-		Type: req.Type,
+func (u *documentUsecase) GetAllDocuments(req *dtos.GetAllDocumentsDTO) (*dtos.PaginationResponse, *apperror.AppError) {
+	if org := req.Organization; org != "" && org != constant.SCCU && org != constant.SGCU {
+		u.logger.Named("GetAllDocuments").Error("invalid organization", zap.String("organization", org))
+		return nil, apperror.BadRequestError(constant.ErrInvalidOrg)
 	}
 
-	documents, err := u.documentRepository.FindAllDocuments(&findAllDocumentsDTO)
+	if dt := req.DocumentType; dt != constant.ANNOUNCEMENT && dt != constant.STATISTIC && dt != constant.BUDGET {
+		u.logger.Named("GetAllDocuments").Error("invalid document_type", zap.String("document_type", dt))
+		return nil, apperror.BadRequestError(constant.ErrInvalidDocType)
+	}
+
+	if ps := req.PageSize; ps > constant.MAX_PAGE_SIZE || ps < 0 {
+		u.logger.Named("GetAllDocuments").Error("invalid page size", zap.Int("page_size", ps))
+		return nil, apperror.BadRequestError(constant.ErrInvalidPageSize)
+	}
+
+	// parse time
+	layout := "2006-01-02 15:04:05"
+	loc, _ := time.LoadLocation("UTC")
+
+	startTime, err1 := time.ParseInLocation(layout, req.StartTime, loc)
+	endTime, err2 := time.ParseInLocation(layout, req.EndTime, loc)
+	if err1 != nil || err2 != nil {
+		u.logger.Named("GetAllDocuments").Error("invalid time format", zap.String("start time", req.StartTime))
+		return nil, apperror.BadRequestError(constant.ErrInvalidPageSize)
+	}
+
+	args := &repositories.FindAllDocumentsArgs{
+		Offset:       (req.Page - 1) * req.PageSize,
+		Limit:        (req.Page * req.PageSize) - 1,
+		DocumentType: req.DocumentType,
+		Organization: req.Organization,
+		Query:        req.Query,
+		StartTime:    startTime,
+		EndTime:      endTime,
+	}
+
+	documents, err := u.documentRepository.FindAllDocuments(args)
 	if err != nil {
-		u.logger.Named("GetAllDocuments").Error("get all documents: ", zap.Error(err))
-		return nil, err
+		u.logger.Named("GetAllDocuments").Error("cannot find documents", zap.Error(err))
+		return nil, apperror.InternalServerError(constant.ErrFindAllDocuments)
 	}
 
-	var documentsDTO = make([]dtos.DocumentDTO, len(*documents))
-	for i , document := range *documents {
-		documentsDTO[i] = *dtoconv.ConvertToDocumentDTO(&document)
+	data := make([]map[string]interface{}, 0)
+	for _, d := range *documents {
+		data = append(data, map[string]interface{}{
+			"id":           d.ID,
+			"title":        d.Title,
+			"banner":       d.Banner,
+			"cover":        d.Cover,
+			"Type":         d.TypeID,
+			"created_at":   d.CreatedAt,
+			"updated_at":   d.UpdatedAt,
+			"organization": req.Organization,
+		})
 	}
-	
-	return &documentsDTO, nil
+
+	paginationResponse := dtos.PaginationResponse{
+		Data:      data,
+		Page:      fmt.Sprintf("%d", req.Page),
+		Limit:     fmt.Sprintf("%d", req.PageSize),
+		TotalPage: fmt.Sprintf("%d", (int(math.Ceil(float64(len(data)) / float64(req.PageSize))))),
+	}
+
+	return &paginationResponse, nil
 }
 
 func (u *documentUsecase) GetDocumentByID(ID string) (*dtos.DocumentDTO, *apperror.AppError) {

@@ -6,7 +6,7 @@ import (
 
 type DocumentRepository interface {
 	// client side
-	FindAllDocuments(args FindAllDocumentsArgs) (*[]entities.Document, error)
+	FindAllDocuments(args *FindAllDocumentsArgs) (*[]entities.Document, error)
 	FindDocumentByID(ID string) (*entities.Document, error)
 
 	// back office

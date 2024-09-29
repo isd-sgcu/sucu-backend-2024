@@ -37,18 +37,12 @@ type UpdateDocumentDTO struct {
 	Cover   *string `json:"cover"`
 }
 
-type GetDocumentsDTO struct {
-	Page			int	
-	Limit			int
-	Query		 	string
-	Org				string   // organization: sccu, sgcu
-	Type 			string  // type: statistic, budget, announcement
-}
-
-type FindAllDocumentsDTO struct {
-	Page			int	
-	Limit			int
-	Query		 	string
-	Org				string   // organization: sccu, sgcu
-	Type 			string  // type: statistic, budget, announcement
+type GetAllDocumentsDTO struct {
+	Page         int
+	PageSize     int
+	Query        string
+	Organization string // organization: sccu, sgcu
+	DocumentType string // type: statistic, budget, announcement
+	StartTime    string
+	EndTime      string
 }

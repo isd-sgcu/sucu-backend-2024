@@ -12,5 +12,11 @@ var (
 
 	// doc error
 	ErrInvalidDocType       = "invalid document type"
+	ErrInvalidOrg           = "invalid organization"
 	ErrInsertDocumentFailed = "failed to insert document"
+	ErrFindAllDocuments     = "cannot find documents"
+	ErrInvalidTimeFormat    = "invalid time format"
+
+	// pagination error
+	ErrInvalidPageSize = "invalid page size"
 )
