@@ -11,5 +11,5 @@ type DocumentRepository interface {
 	FindDocumentsByRole(roles *[]string) (*[]entities.Document, error)
 	InsertDocument(document *entities.Document) error
 	UpdateDocumentByID(ID string, updateMap interface{}) error
-	DeleteUserByID(ID string) error
+	DeleteDocumentByID(ID string) error
 }

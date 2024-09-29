@@ -119,19 +119,19 @@ func (s *FiberHttpServer) initUserRouter(router fiber.Router, httpHandler handle
 	userRouter := router.Group("/users")
 
 	userRouter.Get("/", httpHandler.User().GetAllUsers)
-	userRouter.Post("/", httpHandler.Middleware().IsLogin, httpHandler.Middleware().SuperAdmin, httpHandler.User().CreateUser)
-	userRouter.Patch("/", httpHandler.Middleware().IsLogin, httpHandler.User().UpdateProfile)
-	userRouter.Put("/:user_id", httpHandler.Middleware().IsLogin, httpHandler.Middleware().SuperAdmin, httpHandler.User().UpdateUserByID)
+	userRouter.Post("/", httpHandler.User().CreateUser)
 }
 
 func (s *FiberHttpServer) initAttachmentRouter(router fiber.Router, httpHandler handlers.Handler) {
 	attachmentRouter := router.Group("/attachments")
 
-	attachmentRouter.Post("/:document_id", httpHandler.Attachment().CreateAttachments)
+	attachmentRouter.Get("/:document_id", httpHandler.Attachment().CreateAttachments)
 }
 
 func (s *FiberHttpServer) initDocumentRouter(router fiber.Router, httpHandler handlers.Handler) {
-	documentRouter := router.Group("/documents")
+	documentsRouter := router.Group("/documents")
 
-	documentRouter.Post("/", httpHandler.Middleware().IsLogin, httpHandler.Document().CreateDocument)
+	documentsRouter.Post("/", httpHandler.Document().CreateDocument)
+	documentsRouter.Delete("/:document_id", httpHandler.Document().DeleteDocumentByID)
+
 }

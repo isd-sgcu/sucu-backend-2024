@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
@@ -11,6 +12,7 @@ import (
 	"github.com/isd-sgcu/sucu-backend-2024/utils"
 	"github.com/isd-sgcu/sucu-backend-2024/utils/constant"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type documentUsecase struct {
@@ -75,9 +77,41 @@ func (u *documentUsecase) CreateDocument(document *dtos.CreateDocumentDTO) *appe
 }
 
 func (u *documentUsecase) UpdateDocumentByID(ID string, updateMap interface{}) *apperror.AppError {
+	existingDocument, err := u.documentRepository.FindDocumentByID(ID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			u.logger.Named("UpdateDocumentByID").Error(constant.ErrDocumentNotFound, zap.String("documentID", ID))
+			return apperror.InternalServerError(constant.ErrDocumentNotFound)
+		}
+		u.logger.Named("UpdateDocumentByID").Error(constant.ErrFindDocumentByID, zap.String("documentID", ID), zap.Error(err))
+		return apperror.InternalServerError(constant.ErrFindDocumentByID)
+	}
+
+	if err := u.documentRepository.UpdateDocumentByID(ID, updateMap); err != nil {
+		u.logger.Named("UpdateDocumentByID").Error(constant.ErrUpdateDocumentFailed, zap.String("documentID", ID), zap.Error(err))
+		return apperror.InternalServerError(constant.ErrUpdateDocumentFailed)
+	}
+
+	u.logger.Named("UpdateDocumentByID").Info("Success: Document updated", zap.String("documentID", existingDocument.ID))
 	return nil
 }
 
 func (u *documentUsecase) DeleteDocumentByID(ID string) *apperror.AppError {
+	existingDocument, err := u.documentRepository.FindDocumentByID(ID)
+	
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			u.logger.Named("DeleteDocumentByID").Error(constant.ErrDocumentNotFound, zap.String("documentID", ID))
+			return apperror.InternalServerError(constant.ErrDocumentNotFound)
+		}
+		u.logger.Named("DeleteDocumentByID").Error(constant.ErrFindDocumentByID, zap.String("documentID", ID), zap.Error(err))
+		return apperror.InternalServerError(constant.ErrFindDocumentByID)
+	}
+	if err := u.documentRepository.DeleteDocumentByID(ID); err != nil {
+		u.logger.Named("DeleteDocumentByID").Error(constant.ErrDeleteDocumentFailed, zap.String("documentID", ID), zap.Error(err))
+		return apperror.InternalServerError(constant.ErrDeleteDocumentFailed)
+	}
+
+	u.logger.Named("DeleteDocumentByID").Info("Success: Document deleted", zap.String("documentID", existingDocument.ID))
 	return nil
 }

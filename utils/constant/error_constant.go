@@ -13,4 +13,8 @@ var (
 	// doc error
 	ErrInvalidDocType       = "invalid document type"
 	ErrInsertDocumentFailed = "failed to insert document"
+	ErrDocumentNotFound = "document not found"
+	ErrFindDocumentByID = "failed to find document by ID"
+	ErrUpdateDocumentFailed = "failed to update document"
+	ErrDeleteDocumentFailed = "failed to delete document"
 )
