@@ -34,9 +34,17 @@ func (r *documentRepository) InsertDocument(document *entities.Document) error {
 }
 
 func (r *documentRepository) UpdateDocumentByID(ID string, updateMap interface{}) error {
-	return r.db.Model(&entities.Document{}).Where("id = ?", ID).Updates(updateMap).Error
+	result := r.db.Model(&entities.Document{}).Where("id = ?", ID).Updates(updateMap)
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
 }
 
 func (r *documentRepository) DeleteDocumentByID(ID string) error {
-	return r.db.Where("id = ?", ID).Delete(&entities.Document{}).Error
+	result := r.db.Where("id = ?", ID).Delete(&entities.Document{})
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
 }
