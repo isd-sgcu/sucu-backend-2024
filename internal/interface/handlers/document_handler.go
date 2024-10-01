@@ -105,7 +105,7 @@ func (h *DocumentHandler) CreateDocument(c *fiber.Ctx) error {
 // @Failure 400 {object} response.Response
 // @Failure 404 {object} response.Response
 // @Failure 500 {object} response.Response
-// @Router /documents/{document_id} [put]
+// @Router /documents/{document_id} [patch]
 func (h *DocumentHandler) UpdateDocumentByID(c *fiber.Ctx) error {
 	documentID := c.Params("document_id")
 	if documentID == "" {
