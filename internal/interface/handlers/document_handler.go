@@ -105,9 +105,30 @@ func (h *DocumentHandler) CreateDocument(c *fiber.Ctx) error {
 // @Failure 400 {object} response.Response
 // @Failure 404 {object} response.Response
 // @Failure 500 {object} response.Response
-// @Router /documents/{document_id} [put]
+// @Router /documents/{document_id} [patch]
 func (h *DocumentHandler) UpdateDocumentByID(c *fiber.Ctx) error {
-	return nil
+	documentID := c.Params("document_id")
+	if documentID == "" {
+		resp := response.NewResponseFactory(response.ERROR, "Document ID is required")
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	// Parse the request body into UpdateDocumentDTO
+	var updateDocumentDTO dtos.UpdateDocumentDTO
+	if err := c.BodyParser(&updateDocumentDTO); err != nil {
+		resp := response.NewResponseFactory(response.ERROR, "Invalid request body")
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	apperr := h.documentUsecase.UpdateDocumentByID(documentID, updateDocumentDTO)
+	if apperr != nil {
+		resp := response.NewResponseFactory(response.ERROR, apperr.Error())
+		return resp.SendResponse(c, apperr.HttpCode)
+	}
+
+	// Return success response
+	resp := response.NewResponseFactory(response.SUCCESS, "Document updated successfully")
+	return resp.SendResponse(c, fiber.StatusOK)
 }
 
 // DeleteDocumentByID godoc
@@ -120,5 +141,18 @@ func (h *DocumentHandler) UpdateDocumentByID(c *fiber.Ctx) error {
 // @Failure 500 {object} response.Response
 // @Router /documents/{document_id} [delete]
 func (h *DocumentHandler) DeleteDocumentByID(c *fiber.Ctx) error {
-	return nil
+	documentID := c.Params("document_id")
+	if documentID == "" {
+		resp := response.NewResponseFactory(response.ERROR, "Document ID is required")
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	apperr := h.documentUsecase.DeleteDocumentByID(documentID)
+	if apperr != nil {
+		resp := response.NewResponseFactory(response.ERROR, apperr.Error())
+		return resp.SendResponse(c, apperr.HttpCode)
+	}
+
+	resp := response.NewResponseFactory(response.SUCCESS, "Document deleted successfully")
+	return resp.SendResponse(c, fiber.StatusOK)
 }
