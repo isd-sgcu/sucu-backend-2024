@@ -134,6 +134,30 @@ func (u *userUsecase) UpdateUserByID(req *dtos.UserDTO, userID string, updateUse
 }
 
 func (u *userUsecase) DeleteUserByID(req *dtos.UserDTO, userID string) *apperror.AppError {
+	role, err := utils.GetRole(req.Role)
+	if err != nil {
+		u.logger.Named("DeleteUserByID").Error(constant.ErrInvalidRole, zap.Error(err))
+		return apperror.BadRequestError(constant.ErrInvalidRole)
+	}
+
+	existingUser, err := u.userRepository.FindUserByID(userID)
+	if err != nil {
+		u.logger.Named("DeleteUserByID").Error(constant.ErrUserNotFound, zap.String("userID", userID), zap.Error(err))
+		return apperror.NotFoundError(constant.ErrUserNotFound)
+	}
+
+	if existingUser.RoleID != role {
+		u.logger.Named("DeleteUserByID").Error(constant.ErrInvalidRole, zap.Error(err))
+		return apperror.BadRequestError(constant.ErrInvalidRole)
+	}
+
+	err = u.userRepository.DeleteUserByID(userID)
+	if err != nil {
+		u.logger.Named("DeleteUserByID").Error(constant.ErrDeleteUserByID, zap.String("userID", userID), zap.Error(err))
+		return apperror.InternalServerError(constant.ErrDeleteUserByID)
+	}
+
+	u.logger.Named("DeleteUserByID").Info("Success: ", zap.String("user_id", userID))
 	return nil
 }
 
