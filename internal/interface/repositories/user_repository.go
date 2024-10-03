@@ -38,5 +38,5 @@ func (r *userRepository) UpdateUserByID(ID string, updateMap interface{}) error 
 }
 
 func (r *userRepository) DeleteUserByID(ID string) error {
-	return nil
+	return r.db.Where("id = ?", ID).Delete(&entities.User{}).Error
 }
