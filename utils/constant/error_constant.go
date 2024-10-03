@@ -9,6 +9,7 @@ var (
 	ErrFindUserByID       = "failed to find user by ID"
 	ErrInvalidRole        = "invalid role"
 	ErrUpdateUserByID     = "failed to update user by ID"
+	ErrDeleteUserByID     = "failed to delete user"
 
 	// doc error
 	ErrInvalidDocType       = "invalid document type"
