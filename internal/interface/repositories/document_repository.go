@@ -24,7 +24,7 @@ type FindAllDocumentsArgs struct {
 	Limit        int
 	DocumentType string
 	Organization string
-	Query        string
+	Title        string
 	StartTime    time.Time
 	EndTime      time.Time
 }
@@ -35,9 +35,9 @@ func (r *documentRepository) FindAllDocuments(args *FindAllDocumentsArgs) (*[]en
 
 	query := r.db.Model(&entities.Document{}).
 		Joins("INNER JOIN users ON documents.user_id = users.id").
-		Where("users.role_id LIKE ?", fmt.Sprintf("%%%s%%", strings.ToUpper(args.Organization))).
-		Where("documents.type_id LIKE ?", fmt.Sprintf("(?i)%%%s%%", strings.ToUpper(args.DocumentType))).
-		Where("documents.title LIKE ?", fmt.Sprintf("%%%s%%", args.Query)).
+		Where("LOWER(users.role_id) LIKE ?", fmt.Sprintf("%%%s%%", strings.ToLower(args.Organization))).
+		Where("LOWER(documents.type_id) LIKE ?", fmt.Sprintf("%%%s%%", strings.ToLower(args.DocumentType))).
+		Where("LOWER(documents.title) LIKE ?", fmt.Sprintf("%%%s%%", strings.ToLower(args.Title))).
 		Where("documents.created_at BETWEEN ? AND ?", args.StartTime, args.EndTime).
 		Offset(args.Offset).
 		Limit(args.Limit)
@@ -48,8 +48,6 @@ func (r *documentRepository) FindAllDocuments(args *FindAllDocumentsArgs) (*[]en
 	}
 
 	return &documents, nil
-	// return nil, nil
-
 }
 
 func (r *documentRepository) FindDocumentByID(ID string) (*entities.Document, error) {

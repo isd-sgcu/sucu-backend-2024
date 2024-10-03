@@ -40,7 +40,7 @@ type UpdateDocumentDTO struct {
 type GetAllDocumentsDTO struct {
 	Page         int
 	PageSize     int
-	Query        string
+	Title        string
 	Organization string // organization: sccu, sgcu
 	DocumentType string // type: statistic, budget, announcement
 	StartTime    string

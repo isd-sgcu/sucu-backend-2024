@@ -1,6 +1,6 @@
 package constant
 
 var (
-	SCCU = "sccu"
-	SGCU = "sgcu"
+	SCCU = "SCCU"
+	SGCU = "SGCU"
 )

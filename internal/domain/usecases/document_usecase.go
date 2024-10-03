@@ -33,15 +33,15 @@ func NewDocumentUsecase(cfg config.Config, logger *zap.Logger, documentRepositor
 }
 
 func (u *documentUsecase) GetAllDocuments(req *dtos.GetAllDocumentsDTO) (*dtos.PaginationResponse, *apperror.AppError) {
-	if org := req.Organization; org != "" &&
-		org != constant.SCCU &&
-		org != constant.SGCU {
+	if org := strings.ToLower(req.Organization); org != "" &&
+		org != strings.ToLower(constant.SCCU) &&
+		org != strings.ToLower(constant.SGCU) {
 
 		u.logger.Named("GetAllDocuments").Error("invalid organization", zap.String("organization", org))
 		return nil, apperror.BadRequestError(constant.ErrInvalidOrg)
 	}
 
-	if dt := req.DocumentType; dt != "" &&
+	if dt := strings.ToLower(req.DocumentType); dt != "" &&
 		dt != strings.ToLower(constant.ANNOUNCEMENT) &&
 		dt != strings.ToLower(constant.STATISTIC) &&
 		dt != strings.ToLower(constant.BUDGET) {
@@ -55,13 +55,12 @@ func (u *documentUsecase) GetAllDocuments(req *dtos.GetAllDocumentsDTO) (*dtos.P
 		return nil, apperror.BadRequestError(constant.ErrInvalidPageSize)
 	}
 
-	loc, _ := time.LoadLocation("UTC")
-	startTime, err := time.ParseInLocation(constant.DATE_FORMAT, req.StartTime, loc)
+	startTime, err := time.Parse(time.RFC3339, req.StartTime)
 	if err != nil {
 		u.logger.Named("GetAllDocuments").Error(constant.ErrInvalidTimeFormat, zap.String("start time", req.StartTime), zap.Error(err))
 		return nil, apperror.BadRequestError(constant.ErrInvalidTimeFormat)
 	}
-	endTime, err := time.ParseInLocation(constant.DATE_FORMAT, req.EndTime, loc)
+	endTime, err := time.Parse(time.RFC3339, req.EndTime)
 	if err != nil {
 		u.logger.Named("GetAllDocuments").Error(constant.ErrInvalidTimeFormat, zap.String("end time", req.EndTime), zap.Error(err))
 		return nil, apperror.BadRequestError(constant.ErrInvalidTimeFormat)
@@ -72,7 +71,7 @@ func (u *documentUsecase) GetAllDocuments(req *dtos.GetAllDocumentsDTO) (*dtos.P
 		Limit:        (req.Page * req.PageSize) - 1,
 		DocumentType: req.DocumentType,
 		Organization: req.Organization,
-		Query:        req.Query,
+		Title:        req.Title,
 		StartTime:    startTime,
 		EndTime:      endTime,
 	}

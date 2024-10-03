@@ -35,10 +35,10 @@ func (h *DocumentHandler) GetAllDocuments(c *fiber.Ctx) error {
 	getallDocumentsDTO := dtos.GetAllDocumentsDTO{
 		Page:         c.QueryInt("page", 1),
 		PageSize:     c.QueryInt("page_size", 10),
-		Query:        c.Query("query"),
+		Title:        c.Query("title"),
 		Organization: c.Query("organization"),
 		DocumentType: c.Query("document_type"),
-		StartTime:    c.Query("Start_time", time.Time{}.UTC().Format(constant.DATE_FORMAT)),
+		StartTime:    c.Query("start_time", time.Time{}.UTC().Format(constant.DATE_FORMAT)),
 		EndTime:      c.Query("end_time", time.Now().UTC().Format(constant.DATE_FORMAT)),
 	}
 
