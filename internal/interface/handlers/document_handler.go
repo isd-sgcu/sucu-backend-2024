@@ -9,7 +9,6 @@ import (
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/response"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/validator"
-	"github.com/isd-sgcu/sucu-backend-2024/utils/constant"
 )
 
 type DocumentHandler struct {
@@ -38,8 +37,8 @@ func (h *DocumentHandler) GetAllDocuments(c *fiber.Ctx) error {
 		Title:        c.Query("title"),
 		Organization: c.Query("organization"),
 		DocumentType: c.Query("document_type"),
-		StartTime:    c.Query("start_time", time.Time{}.UTC().Format(constant.DATE_FORMAT)),
-		EndTime:      c.Query("end_time", time.Now().UTC().Format(constant.DATE_FORMAT)),
+		StartTime:    c.Query("start_time", time.Time{}.UTC().Format(time.RFC3339)),
+		EndTime:      c.Query("end_time", time.Now().UTC().Format(time.RFC3339)),
 	}
 
 	paginationResp, err := h.documentUsecase.GetAllDocuments(&getallDocumentsDTO)
