@@ -126,7 +126,16 @@ func (h *UserHandler) UpdateUserByID(c *fiber.Ctx) error {
 // @Failure 500 {object} response.Response
 // @Router /users/{user_id} [delete]
 func (h *UserHandler) DeleteUserByID(c *fiber.Ctx) error {
-	return nil
+	req := c.Locals("user").(*dtos.UserDTO)
+	userID := c.Params("user_id")
+
+	apperr := h.userUsecase.DeleteUserByID(req, userID)
+	if apperr != nil {
+		resp := response.NewResponseFactory(response.ERROR, apperr.Error())
+		return resp.SendResponse(c, apperr.HttpCode)
+	}
+
+	return c.SendStatus(fiber.StatusNoContent)
 }
 
 // UpdateProfile godoc
