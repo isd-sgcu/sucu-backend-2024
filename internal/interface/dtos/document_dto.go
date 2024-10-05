@@ -1,8 +1,6 @@
 package dtos
 
-import (
-	"time"
-)
+import "time"
 
 type DocumentDTO struct {
 	ID        string    `json:"id"`

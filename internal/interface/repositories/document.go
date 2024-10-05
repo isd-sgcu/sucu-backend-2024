@@ -1,8 +1,6 @@
 package repositories
 
-import (
-	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
-)
+import "github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
 
 type DocumentRepository interface {
 	// client side
