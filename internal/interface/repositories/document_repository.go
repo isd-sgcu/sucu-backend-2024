@@ -37,10 +37,13 @@ func (r *documentRepository) FindAllDocuments(args *FindAllDocumentsArgs) (*[]en
 	var results []struct {
 		*entities.Document
 		*entities.User
+		DocumentID string
+		AuthorID   string
 	}
 
-	err := r.db.Preload("Author").Raw(`
-		SELECT * FROM documents INNER JOIN users ON documents.user_id = users.id
+	err := r.db.Raw(`
+		SELECT *, documents.id AS document_id, users.id AS AuthorID 
+		FROM documents INNER JOIN users ON documents.user_id = users.id
 		WHERE documents.type_id LIKE ?
 		AND	 LOWER(documents.title) LIKE ?
 		AND  documents.created_at BETWEEN ? AND ?
@@ -60,6 +63,10 @@ func (r *documentRepository) FindAllDocuments(args *FindAllDocumentsArgs) (*[]en
 		var d entities.Document
 		copier.Copy(&d, &result)
 		copier.Copy(&d.Author, &result)
+
+		d.ID = result.DocumentID
+		d.Author.ID = result.AuthorID
+
 		documents = append(documents, d)
 	}
 
