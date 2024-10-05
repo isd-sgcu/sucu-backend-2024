@@ -9,6 +9,7 @@ import (
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/response"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/validator"
+	"github.com/isd-sgcu/sucu-backend-2024/utils"
 	"github.com/isd-sgcu/sucu-backend-2024/utils/constant"
 )
 
@@ -43,17 +44,12 @@ func (h *DocumentHandler) GetAllDocuments(c *fiber.Ctx) error {
 
 	var errors []string
 
-	if org := strings.ToUpper(getallDocumentsDTO.Organization); org != "" &&
-		org != constant.SCCU &&
-		org != constant.SGCU {
-		errors = append(errors, constant.ErrInvalidOrg)
+	if !utils.ValidateDocType(getallDocumentsDTO.DocumentType) {
+		errors = append(errors, constant.ErrInvalidDocType)
 	}
 
-	if dt := strings.ToUpper(getallDocumentsDTO.DocumentType); dt != "" &&
-		dt != constant.ANNOUNCEMENT &&
-		dt != constant.STATISTIC &&
-		dt != constant.BUDGET {
-		errors = append(errors, constant.ErrInvalidDocType)
+	if !utils.ValidateOrg(getallDocumentsDTO.Organization) {
+		errors = append(errors, constant.ErrInvalidOrg)
 	}
 
 	if ps := getallDocumentsDTO.PageSize; ps > constant.MAX_PAGE_SIZE || ps < 0 {
