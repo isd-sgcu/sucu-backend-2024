@@ -14,7 +14,7 @@ var (
 	ErrInvalidDocType       = "invalid document type"
 	ErrInvalidOrg           = "invalid organization"
 	ErrInsertDocumentFailed = "failed to insert document"
-	ErrFindAllDocuments     = "cannot find documents"
+	ErrGetDocumentFailed    = "failed to get document"
 	ErrInvalidTimeFormat    = "invalid time format"
 
 	// pagination error

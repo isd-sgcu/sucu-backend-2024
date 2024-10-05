@@ -45,8 +45,8 @@ func (u *documentUsecase) GetAllDocuments(req *dtos.GetAllDocumentsDTO) (*dtos.P
 
 	documents, err := u.documentRepository.FindAllDocuments(args)
 	if err != nil {
-		u.logger.Named("GetAllDocuments").Error(constant.ErrFindAllDocuments, zap.Error(err))
-		return nil, apperror.InternalServerError(constant.ErrFindAllDocuments)
+		u.logger.Named("GetAllDocuments").Error(constant.ErrGetDocumentFailed, zap.Error(err))
+		return nil, apperror.InternalServerError(constant.ErrGetDocumentFailed)
 	}
 
 	// create pagination response dtos
