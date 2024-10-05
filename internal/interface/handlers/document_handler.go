@@ -9,6 +9,7 @@ import (
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/response"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/validator"
+	"github.com/isd-sgcu/sucu-backend-2024/utils/constant"
 )
 
 type DocumentHandler struct {
@@ -31,15 +32,47 @@ func NewDocumentHandler(documentUsecase usecases.DocumentUsecase, validator vali
 // @Failure 500 {object} response.Response
 // @Router /documents [get]
 func (h *DocumentHandler) GetAllDocuments(c *fiber.Ctx) error {
+	// validate parameter
 	getallDocumentsDTO := dtos.GetAllDocumentsDTO{
 		Page:         c.QueryInt("page", 1),
 		PageSize:     c.QueryInt("page_size", 10),
 		Title:        c.Query("title"),
 		Organization: c.Query("organization"),
 		DocumentType: c.Query("document_type"),
-		StartTime:    c.Query("start_time", time.Time{}.UTC().Format(time.RFC3339)),
-		EndTime:      c.Query("end_time", time.Now().UTC().Format(time.RFC3339)),
 	}
+
+	var errors []string
+
+	if org := strings.ToUpper(getallDocumentsDTO.Organization); org != "" &&
+		org != constant.SCCU &&
+		org != constant.SGCU {
+		errors = append(errors, constant.ErrInvalidOrg)
+	}
+
+	if dt := strings.ToUpper(getallDocumentsDTO.DocumentType); dt != "" &&
+		dt != constant.ANNOUNCEMENT &&
+		dt != constant.STATISTIC &&
+		dt != constant.BUDGET {
+		errors = append(errors, constant.ErrInvalidDocType)
+	}
+
+	if ps := getallDocumentsDTO.PageSize; ps > constant.MAX_PAGE_SIZE || ps < 0 {
+		errors = append(errors, constant.ErrInvalidPageSize)
+	}
+
+	startTime, err1 := time.Parse(time.RFC3339, c.Query("start_time", time.Time{}.UTC().Format(time.RFC3339)))
+	endTime, err2 := time.Parse(time.RFC3339, c.Query("end_time", time.Now().UTC().Format(time.RFC3339)))
+	if err1 != nil || err2 != nil {
+		errors = append(errors, constant.ErrInvalidTimeFormat)
+	}
+
+	if len(errors) != 0 {
+		resp := response.NewResponseFactory(response.ERROR, strings.Join(errors, ", "))
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	getallDocumentsDTO.StartTime = startTime
+	getallDocumentsDTO.EndTime = endTime
 
 	paginationResp, err := h.documentUsecase.GetAllDocuments(&getallDocumentsDTO)
 	if err != nil {

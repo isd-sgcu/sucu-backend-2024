@@ -41,6 +41,6 @@ type GetAllDocumentsDTO struct {
 	Title        string
 	Organization string // organization: sccu, sgcu
 	DocumentType string // type: statistic, budget, announcement
-	StartTime    string
-	EndTime      string
+	StartTime    time.Time
+	EndTime      time.Time
 }
