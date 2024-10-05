@@ -1,10 +1,12 @@
 package repositories
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
+	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 )
 
@@ -32,18 +34,34 @@ type FindAllDocumentsArgs struct {
 func (r *documentRepository) FindAllDocuments(args *FindAllDocumentsArgs) (*[]entities.Document, error) {
 	var documents []entities.Document
 
-	r.db.Raw(`
+	var results []struct {
+		*entities.Document
+		*entities.User
+	}
+
+	err := r.db.Preload("Author").Raw(`
 		SELECT * FROM documents INNER JOIN users ON documents.user_id = users.id
-		WHERE documents.type_id LIKE %?% 
-		AND	 LOWER(documents.title) LIKE %?%
-		AND  documents.created_at BETWEEN %?% AND %?%
+		WHERE documents.type_id LIKE ?
+		AND	 LOWER(documents.title) LIKE ?
+		AND  documents.created_at BETWEEN ? AND ?
 		OFFSET ? LIMIT ?`,
-		strings.ToUpper(args.DocumentType),
-		strings.ToLower(args.Title),
+		fmt.Sprintf("%%%s%%", strings.ToUpper(args.DocumentType)),
+		fmt.Sprintf("%%%s%%", strings.ToLower(args.Title)),
 		args.StartTime,
 		args.EndTime,
 		args.Offset,
-		args.Limit).Scan(&documents)
+		args.Limit).Scan(&results).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, result := range results {
+		var d entities.Document
+		copier.Copy(&d, &result)
+		copier.Copy(&d.Author, &result)
+		documents = append(documents, d)
+	}
 
 	return &documents, nil
 }
