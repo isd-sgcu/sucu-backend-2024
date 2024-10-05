@@ -33,11 +33,12 @@ func NewDocumentUsecase(cfg config.Config, logger *zap.Logger, documentRepositor
 }
 
 func (u *documentUsecase) GetAllDocuments(req *dtos.GetAllDocumentsDTO) (*dtos.PaginationResponse, *apperror.AppError) {
+	// validate arguments
 	if org := strings.ToLower(req.Organization); org != "" &&
 		org != strings.ToLower(constant.SCCU) &&
 		org != strings.ToLower(constant.SGCU) {
 
-		u.logger.Named("GetAllDocuments").Error("invalid organization", zap.String("organization", org))
+		u.logger.Named("GetAllDocuments").Error(constant.ErrInvalidOrg, zap.String("organization", org))
 		return nil, apperror.BadRequestError(constant.ErrInvalidOrg)
 	}
 
@@ -66,6 +67,7 @@ func (u *documentUsecase) GetAllDocuments(req *dtos.GetAllDocumentsDTO) (*dtos.P
 		return nil, apperror.BadRequestError(constant.ErrInvalidTimeFormat)
 	}
 
+	// retreive documents from repository
 	args := &repositories.FindAllDocumentsArgs{
 		Offset:       (req.Page - 1) * req.PageSize,
 		Limit:        req.PageSize,
@@ -82,6 +84,7 @@ func (u *documentUsecase) GetAllDocuments(req *dtos.GetAllDocumentsDTO) (*dtos.P
 		return nil, apperror.NotFoundError(constant.ErrFindAllDocuments)
 	}
 
+	// create pagination response dtos
 	data := make([]map[string]interface{}, 0)
 	for _, d := range *documents {
 		data = append(data, map[string]interface{}{
