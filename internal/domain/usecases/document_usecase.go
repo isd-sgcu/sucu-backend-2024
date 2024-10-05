@@ -68,7 +68,7 @@ func (u *documentUsecase) GetAllDocuments(req *dtos.GetAllDocumentsDTO) (*dtos.P
 
 	args := &repositories.FindAllDocumentsArgs{
 		Offset:       (req.Page - 1) * req.PageSize,
-		Limit:        (req.Page * req.PageSize) - 1,
+		Limit:        req.PageSize,
 		DocumentType: req.DocumentType,
 		Organization: req.Organization,
 		Title:        req.Title,
@@ -79,7 +79,7 @@ func (u *documentUsecase) GetAllDocuments(req *dtos.GetAllDocumentsDTO) (*dtos.P
 	documents, err := u.documentRepository.FindAllDocuments(args)
 	if err != nil {
 		u.logger.Named("GetAllDocuments").Error(constant.ErrFindAllDocuments, zap.Error(err))
-		return nil, apperror.InternalServerError(constant.ErrFindAllDocuments)
+		return nil, apperror.NotFoundError(constant.ErrFindAllDocuments)
 	}
 
 	data := make([]map[string]interface{}, 0)
@@ -92,7 +92,7 @@ func (u *documentUsecase) GetAllDocuments(req *dtos.GetAllDocumentsDTO) (*dtos.P
 			"type":         strings.ToLower(d.TypeID),
 			"created_at":   d.CreatedAt,
 			"updated_at":   d.UpdatedAt,
-			"organization": req.Organization,
+			"organization": strings.ToLower(strings.Split(d.Author.RoleID, "_")[0]),
 		})
 	}
 
