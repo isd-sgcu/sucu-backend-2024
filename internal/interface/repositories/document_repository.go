@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -33,18 +32,19 @@ type FindAllDocumentsArgs struct {
 func (r *documentRepository) FindAllDocuments(args *FindAllDocumentsArgs) (*[]entities.Document, error) {
 	var documents []entities.Document
 
-	query := r.db.Model(&entities.Document{}).
-		InnerJoins("Author", r.db.Where("LOWER(\"Author\".\"role_id\") LIKE ?", fmt.Sprintf("%%%s%%", strings.ToLower(args.Organization)))).
-		Where("LOWER(documents.type_id) LIKE ?", fmt.Sprintf("%%%s%%", strings.ToLower(args.DocumentType))).
-		Where("LOWER(documents.title) LIKE ?", fmt.Sprintf("%%%s%%", strings.ToLower(args.Title))).
-		Where("documents.created_at BETWEEN ? AND ?", args.StartTime, args.EndTime).
-		Offset(args.Offset).
-		Limit(args.Limit)
+	r.db.Raw(`
+		SELECT * FROM documents INNER JOIN users ON documents.user_id = users.id
+		WHERE documents.type_id LIKE %?% 
+		AND	 LOWER(documents.title) LIKE %?%
+		AND  documents.created_at BETWEEN %?% AND %?%
+		OFFSET ? LIMIT ?`,
+		strings.ToUpper(args.DocumentType),
+		strings.ToLower(args.Title),
+		args.StartTime,
+		args.EndTime,
+		args.Offset,
+		args.Limit).Scan(&documents)
 
-	err := query.Find(&documents).Error
-	if err != nil {
-		return nil, err
-	}
 	return &documents, nil
 }
 
