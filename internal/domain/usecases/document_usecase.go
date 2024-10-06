@@ -86,6 +86,7 @@ func (u *documentUsecase) GetDocumentsByRole(req *dtos.GetAllDocumentsByRoleDTO)
 		Offset:       (req.Page - 1) * req.PageSize,
 		Limit:        req.PageSize,
 		DocumentType: req.DocumentType,
+		Organization: req.Organization,
 		Title:        req.Title,
 		StartTime:    req.StartTime,
 		EndTime:      req.EndTime,

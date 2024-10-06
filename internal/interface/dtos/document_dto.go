@@ -50,7 +50,8 @@ type GetAllDocumentsByRoleDTO struct {
 	PageSize     int
 	Title        string
 	DocumentType string // type: statistic, budget, announcement
-	Roles        *[]string
+	Organization string // organization: sccu, sgcu
+	Roles        []string
 	StartTime    time.Time
 	EndTime      time.Time
 }

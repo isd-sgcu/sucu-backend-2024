@@ -83,10 +83,11 @@ type FindAllDocumentsByRoleArgs struct {
 	Offset       int
 	Limit        int
 	DocumentType string
+	Organization string
 	Title        string
 	StartTime    time.Time
 	EndTime      time.Time
-	Roles        *[]string
+	Roles        []string
 }
 
 // back office
@@ -105,11 +106,13 @@ func (r *documentRepository) FindDocumentsByRole(args *FindAllDocumentsByRoleArg
 		FROM documents INNER JOIN users ON documents.user_id = users.id
 		WHERE documents.type_id LIKE ?
 		AND	 LOWER(documents.title) LIKE ?
+		AND  LOWER(users.role_id) LIKE ?
 		AND  users.role_id IN ?
 		AND  documents.created_at BETWEEN ? AND ?
 		OFFSET ? LIMIT ?`,
 		fmt.Sprintf("%%%s%%", strings.ToUpper(args.DocumentType)),
 		fmt.Sprintf("%%%s%%", strings.ToLower(args.Title)),
+		fmt.Sprintf("%%%s%%", strings.ToLower(args.Organization)),
 		args.Roles,
 		args.StartTime,
 		args.EndTime,
