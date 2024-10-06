@@ -103,7 +103,56 @@ func (h *DocumentHandler) GetDocumentByID(c *fiber.Ctx) error {
 // @Failure 500 {object} response.Response
 // @Router /documents/role/{role_id} [get]
 func (h *DocumentHandler) GetDocumentsByRole(c *fiber.Ctx) error {
-	return nil
+	// validate parameter
+	getallDocumentsByRoleDTO := dtos.GetAllDocumentsByRoleDTO{
+		Page:         c.QueryInt("page", 1),
+		PageSize:     c.QueryInt("page_size", 10),
+		Title:        c.Query("title"),
+		DocumentType: c.Query("document_type"),
+		Organization: c.Query("organization"),
+		Role:         c.Params("role_id"),
+	}
+
+	var errors []string
+
+	if !utils.ValidateDocType(getallDocumentsByRoleDTO.DocumentType) {
+		errors = append(errors, constant.ErrInvalidDocType)
+	}
+
+	if !utils.ValidateOrg(getallDocumentsByRoleDTO.Organization) {
+		errors = append(errors, constant.ErrInvalidOrg)
+	}
+
+	if role := getallDocumentsByRoleDTO.Role; role == "" || !utils.ValidateRole(role) {
+		errors = append(errors, constant.ErrInvalidRole)
+	}
+
+	if ps := getallDocumentsByRoleDTO.PageSize; ps > constant.MAX_PAGE_SIZE || ps < 0 {
+		errors = append(errors, constant.ErrInvalidPageSize)
+	}
+
+	startTime, err1 := time.Parse(time.RFC3339, c.Query("start_time", time.Time{}.UTC().Format(time.RFC3339)))
+	endTime, err2 := time.Parse(time.RFC3339, c.Query("end_time", time.Now().UTC().Format(time.RFC3339)))
+	if err1 != nil || err2 != nil {
+		errors = append(errors, constant.ErrInvalidTimeFormat)
+	}
+
+	if len(errors) != 0 {
+		resp := response.NewResponseFactory(response.ERROR, strings.Join(errors, ", "))
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	getallDocumentsByRoleDTO.StartTime = startTime
+	getallDocumentsByRoleDTO.EndTime = endTime
+
+	paginationResp, err := h.documentUsecase.GetDocumentsByRole(&getallDocumentsByRoleDTO)
+	if err != nil {
+		resp := response.NewResponseFactory(response.ERROR, err.Error())
+		return resp.SendResponse(c, err.HttpCode)
+	}
+
+	resp := response.NewResponseFactory(response.SUCCESS, paginationResp)
+	return resp.SendResponse(c, fiber.StatusOK)
 }
 
 // CreateDocument godoc

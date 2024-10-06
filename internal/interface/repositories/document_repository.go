@@ -44,10 +44,12 @@ func (r *documentRepository) FindAllDocuments(args *FindAllDocumentsArgs) (*[]en
 	err := r.db.Raw(`
 		SELECT *, documents.id AS document_id, users.id AS AuthorID 
 		FROM documents INNER JOIN users ON documents.user_id = users.id
-		WHERE documents.type_id LIKE ?
+		WHERE users.role_id LIKE ?
+		AND  documents.type_id LIKE ?
 		AND	 LOWER(documents.title) LIKE ?
 		AND  documents.created_at BETWEEN ? AND ?
 		OFFSET ? LIMIT ?`,
+		fmt.Sprintf("%%%s%%", strings.ToUpper(args.Organization)),
 		fmt.Sprintf("%%%s%%", strings.ToUpper(args.DocumentType)),
 		fmt.Sprintf("%%%s%%", strings.ToLower(args.Title)),
 		args.StartTime,
@@ -77,9 +79,62 @@ func (r *documentRepository) FindDocumentByID(ID string) (*entities.Document, er
 	return nil, nil
 }
 
+type FindAllDocumentsByRoleArgs struct {
+	Offset       int
+	Limit        int
+	DocumentType string
+	Organization string
+	Title        string
+	StartTime    time.Time
+	EndTime      time.Time
+	Role         string
+}
+
 // back office
-func (r *documentRepository) FindDocumentsByRole(roles *[]string) (*[]entities.Document, error) {
-	return nil, nil
+func (r *documentRepository) FindDocumentsByRole(args *FindAllDocumentsByRoleArgs) (*[]entities.Document, error) {
+	var documents []entities.Document
+
+	var results []struct {
+		*entities.Document
+		*entities.User
+		DocumentID string
+		AuthorID   string
+	}
+
+	err := r.db.Raw(`
+		SELECT *, documents.id AS document_id, users.id AS AuthorID 
+		FROM documents INNER JOIN users ON documents.user_id = users.id
+		WHERE documents.type_id LIKE ?
+		AND	 LOWER(documents.title) LIKE ?
+		AND  users.role_id LIKE ?
+		AND  users.role_id = ?
+		AND  documents.created_at BETWEEN ? AND ?
+		OFFSET ? LIMIT ?`,
+		fmt.Sprintf("%%%s%%", strings.ToUpper(args.DocumentType)),
+		fmt.Sprintf("%%%s%%", strings.ToLower(args.Title)),
+		fmt.Sprintf("%%%s%%", strings.ToUpper(args.Organization)),
+		strings.ToUpper(args.Role),
+		args.StartTime,
+		args.EndTime,
+		args.Offset,
+		args.Limit).Scan(&results).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, result := range results {
+		var d entities.Document
+		copier.Copy(&d, &result)
+		copier.Copy(&d.Author, &result)
+
+		d.ID = result.DocumentID
+		d.Author.ID = result.AuthorID
+
+		documents = append(documents, d)
+	}
+
+	return &documents, nil
 }
 
 func (r *documentRepository) InsertDocument(document *entities.Document) error {

@@ -11,7 +11,7 @@ type DocumentUsecase interface {
 	GetDocumentByID(ID string) (*dtos.DocumentDTO, *apperror.AppError)
 
 	// back office
-	GetDocumentsByRole(req *dtos.UserDTO) (*[]dtos.DocumentDTO, *apperror.AppError)
+	GetDocumentsByRole(req *dtos.GetAllDocumentsByRoleDTO) (*dtos.PaginationResponse, *apperror.AppError)
 	CreateDocument(document *dtos.CreateDocumentDTO) *apperror.AppError
 	UpdateDocumentByID(ID string, updateMap interface{}) *apperror.AppError
 	DeleteDocumentByID(ID string) *apperror.AppError

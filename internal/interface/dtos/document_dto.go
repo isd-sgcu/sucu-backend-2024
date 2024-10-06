@@ -44,3 +44,14 @@ type GetAllDocumentsDTO struct {
 	StartTime    time.Time
 	EndTime      time.Time
 }
+
+type GetAllDocumentsByRoleDTO struct {
+	Page         int
+	PageSize     int
+	Title        string
+	DocumentType string // type: statistic, budget, announcement
+	Organization string // organization: sccu, sgcu
+	Role         string
+	StartTime    time.Time
+	EndTime      time.Time
+}
