@@ -90,7 +90,7 @@ func (u *documentUsecase) GetDocumentsByRole(req *dtos.GetAllDocumentsByRoleDTO)
 		Title:        req.Title,
 		StartTime:    req.StartTime,
 		EndTime:      req.EndTime,
-		Roles:        req.Roles,
+		Role:         req.Role,
 	}
 
 	documents, err := u.documentRepository.FindDocumentsByRole(args)

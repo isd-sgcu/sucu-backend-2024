@@ -37,3 +37,14 @@ func ValidateOrg(org string) bool {
 
 	return validate(strings.ToUpper(org), orgs)
 }
+
+func ValidateRole(role string) bool {
+	roles := []string{
+		constant.SCCU_ADMIN,
+		constant.SCCU_SUPERADMIN,
+		constant.SGCU_ADMIN,
+		constant.SGCU_SUPERADMIN,
+	}
+
+	return validate(strings.ToUpper(role), roles)
+}

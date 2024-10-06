@@ -51,7 +51,7 @@ type GetAllDocumentsByRoleDTO struct {
 	Title        string
 	DocumentType string // type: statistic, budget, announcement
 	Organization string // organization: sccu, sgcu
-	Roles        []string
+	Role         string
 	StartTime    time.Time
 	EndTime      time.Time
 }

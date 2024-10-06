@@ -15,10 +15,10 @@ var (
 	ErrInvalidDocType       = "invalid document type"
 	ErrInvalidOrg           = "invalid organization"
 	ErrInvalidTimeFormat    = "invalid time format"
-  ErrDocumentNotFound     = "document not found"
+	ErrDocumentNotFound     = "document not found"
 	ErrFindDocumentByID     = "failed to find document by ID"
-  ErrGetDocumentFailed    = "failed to get document"
-  ErrInsertDocumentFailed = "failed to insert document"
+	ErrGetDocumentFailed    = "failed to get document"
+	ErrInsertDocumentFailed = "failed to insert document"
 	ErrUpdateDocumentFailed = "failed to update document"
 	ErrDeleteDocumentFailed = "failed to delete document"
 
