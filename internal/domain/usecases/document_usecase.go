@@ -80,8 +80,48 @@ func (u *documentUsecase) GetDocumentByID(ID string) (*dtos.DocumentDTO, *apperr
 	return nil, nil
 }
 
-func (u *documentUsecase) GetDocumentsByRole(req *dtos.UserDTO) (*[]dtos.DocumentDTO, *apperror.AppError) {
-	return nil, nil
+func (u *documentUsecase) GetDocumentsByRole(req *dtos.GetAllDocumentsByRoleDTO) (*dtos.PaginationResponse, *apperror.AppError) {
+	// retreive documents from repository
+	args := &repositories.FindAllDocumentsByRoleArgs{
+		Offset:       (req.Page - 1) * req.PageSize,
+		Limit:        req.PageSize,
+		DocumentType: req.DocumentType,
+		Title:        req.Title,
+		StartTime:    req.StartTime,
+		EndTime:      req.EndTime,
+		Roles:        req.Roles,
+	}
+
+	documents, err := u.documentRepository.FindDocumentsByRole(args)
+	if err != nil {
+		u.logger.Named("GetAllDocumentsByRole").Error(constant.ErrGetDocumentFailed, zap.Error(err))
+		return nil, apperror.InternalServerError(constant.ErrGetDocumentFailed)
+	}
+
+	// create pagination response dtos
+	data := make([]map[string]interface{}, 0)
+	for _, d := range *documents {
+		data = append(data, map[string]interface{}{
+			"id":           d.ID,
+			"title":        d.Title,
+			"banner":       d.Banner,
+			"cover":        d.Cover,
+			"type":         strings.ToLower(d.TypeID),
+			"created_at":   d.CreatedAt,
+			"updated_at":   d.UpdatedAt,
+			"organization": strings.ToLower(strings.Split(d.Author.RoleID, "_")[0]),
+			"author_role":  strings.ToLower(d.Author.RoleID),
+		})
+	}
+
+	paginationResponse := dtos.PaginationResponse{
+		Data:      data,
+		Page:      fmt.Sprintf("%d", req.Page),
+		Limit:     fmt.Sprintf("%d", req.PageSize),
+		TotalPage: fmt.Sprintf("%d", (int(math.Ceil(float64(len(data)) / float64(req.PageSize))))),
+	}
+
+	return &paginationResponse, nil
 }
 
 func (u *documentUsecase) CreateDocument(document *dtos.CreateDocumentDTO) *apperror.AppError {
