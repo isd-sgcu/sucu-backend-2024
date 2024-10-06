@@ -134,6 +134,7 @@ func (s *FiberHttpServer) initAttachmentRouter(router fiber.Router, httpHandler 
 func (s *FiberHttpServer) initDocumentRouter(router fiber.Router, httpHandler handlers.Handler) {
 	documentRouter := router.Group("/documents")
 
+	documentRouter.Get("/", httpHandler.Document().GetAllDocuments)
 	documentRouter.Post("/", httpHandler.Middleware().IsLogin, httpHandler.Document().CreateDocument)
 	documentRouter.Patch("/:document_id", httpHandler.Middleware().IsLogin, httpHandler.Middleware().SuperAdmin, httpHandler.Document().UpdateDocumentByID)
 	documentRouter.Delete("/:document_id", httpHandler.Middleware().IsLogin, httpHandler.Middleware().SuperAdmin, httpHandler.Document().DeleteDocumentByID)

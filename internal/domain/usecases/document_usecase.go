@@ -3,6 +3,8 @@ package usecases
 import (
 	"errors"
 	"fmt"
+	"math"
+	"strings"
 
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
@@ -31,8 +33,47 @@ func NewDocumentUsecase(cfg config.Config, logger *zap.Logger, documentRepositor
 	}
 }
 
-func (u *documentUsecase) GetAllDocuments() (*[]dtos.DocumentDTO, *apperror.AppError) {
-	return nil, nil
+func (u *documentUsecase) GetAllDocuments(req *dtos.GetAllDocumentsDTO) (*dtos.PaginationResponse, *apperror.AppError) {
+	// retreive documents from repository
+	args := &repositories.FindAllDocumentsArgs{
+		Offset:       (req.Page - 1) * req.PageSize,
+		Limit:        req.PageSize,
+		DocumentType: req.DocumentType,
+		Organization: req.Organization,
+		Title:        req.Title,
+		StartTime:    req.StartTime,
+		EndTime:      req.EndTime,
+	}
+
+	documents, err := u.documentRepository.FindAllDocuments(args)
+	if err != nil {
+		u.logger.Named("GetAllDocuments").Error(constant.ErrGetDocumentFailed, zap.Error(err))
+		return nil, apperror.InternalServerError(constant.ErrGetDocumentFailed)
+	}
+
+	// create pagination response dtos
+	data := make([]map[string]interface{}, 0)
+	for _, d := range *documents {
+		data = append(data, map[string]interface{}{
+			"id":           d.ID,
+			"title":        d.Title,
+			"banner":       d.Banner,
+			"cover":        d.Cover,
+			"type":         strings.ToLower(d.TypeID),
+			"created_at":   d.CreatedAt,
+			"updated_at":   d.UpdatedAt,
+			"organization": strings.ToLower(strings.Split(d.Author.RoleID, "_")[0]),
+		})
+	}
+
+	paginationResponse := dtos.PaginationResponse{
+		Data:      data,
+		Page:      fmt.Sprintf("%d", req.Page),
+		Limit:     fmt.Sprintf("%d", req.PageSize),
+		TotalPage: fmt.Sprintf("%d", (int(math.Ceil(float64(len(data)) / float64(req.PageSize))))),
+	}
+
+	return &paginationResponse, nil
 }
 
 func (u *documentUsecase) GetDocumentByID(ID string) (*dtos.DocumentDTO, *apperror.AppError) {

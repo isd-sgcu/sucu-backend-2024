@@ -34,3 +34,13 @@ type UpdateDocumentDTO struct {
 	Banner  *string `json:"banner"`
 	Cover   *string `json:"cover"`
 }
+
+type GetAllDocumentsDTO struct {
+	Page         int
+	PageSize     int
+	Title        string
+	Organization string // organization: sccu, sgcu
+	DocumentType string // type: statistic, budget, announcement
+	StartTime    time.Time
+	EndTime      time.Time
+}

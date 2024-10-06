@@ -4,7 +4,7 @@ import "github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
 
 type DocumentRepository interface {
 	// client side
-	FindAllDocuments() (*[]entities.Document, error)
+	FindAllDocuments(args *FindAllDocumentsArgs) (*[]entities.Document, error)
 	FindDocumentByID(ID string) (*entities.Document, error)
 
 	// back office
