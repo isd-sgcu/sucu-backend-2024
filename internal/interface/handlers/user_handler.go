@@ -43,7 +43,13 @@ func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 // @Failure 500 {object} response.Response
 // @Router /users/{user_id} [get]
 func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
-	return nil
+	userID := c.Params("user_id") // how to get this?
+	req := c.Locals("user").(*dtos.UserDTO)
+	res, err := h.userUsecase.GetUserByID(req, userID)
+	if err != nil {
+		return err
+	}
+	return c.JSON(res)
 }
 
 // CreateUser godoc
