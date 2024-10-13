@@ -4,6 +4,7 @@ var (
 	// user error
 	ErrUserAlreadyExists  = "user already exists"
 	ErrUserNotFound       = "user not found"
+	ErrRoleNotFound       = "role not found"
 	ErrHashPasswordFailed = "failed to hash password"
 	ErrInsertUserFailed   = "failed to insert user"
 	ErrFindUserByID       = "failed to find user by ID"
