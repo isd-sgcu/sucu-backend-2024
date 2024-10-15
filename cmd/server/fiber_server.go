@@ -119,6 +119,7 @@ func (s *FiberHttpServer) initUserRouter(router fiber.Router, httpHandler handle
 	userRouter := router.Group("/users")
 
 	userRouter.Get("/", httpHandler.User().GetAllUsers)
+	userRouter.Get("/:user_id", httpHandler.Middleware().IsLogin, httpHandler.Middleware().SuperAdmin, httpHandler.User().GetUserByID)
 	userRouter.Post("/", httpHandler.Middleware().IsLogin, httpHandler.Middleware().SuperAdmin, httpHandler.User().CreateUser)
 	userRouter.Patch("/", httpHandler.Middleware().IsLogin, httpHandler.User().UpdateProfile)
 	userRouter.Put("/:user_id", httpHandler.Middleware().IsLogin, httpHandler.Middleware().SuperAdmin, httpHandler.User().UpdateUserByID)

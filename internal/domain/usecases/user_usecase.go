@@ -36,7 +36,30 @@ func (u *userUsecase) GetAllUsers(req *dtos.UserDTO) (*[]dtos.UserDTO, *apperror
 }
 
 func (u *userUsecase) GetUserByID(req *dtos.UserDTO, userID string) (*dtos.UserDTO, *apperror.AppError) {
-	return nil, nil
+	role, err := utils.GetRole(req.Role)
+	if err != nil {
+		u.logger.Named("GetUserByID").Error(constant.ErrInvalidRole, zap.String("role", req.Role), zap.Error(err))
+		return nil, apperror.BadRequestError(constant.ErrInvalidRole)
+	}
+	res, err := u.userRepository.FindUserByID(userID)
+	if err != nil {
+		u.logger.Named("GetUserByID").Error(constant.ErrFindUserByID, zap.String("userID", req.ID), zap.Error(err))
+		return nil, apperror.NotFoundError(constant.ErrFindUserByID)
+	}
+	if res.RoleID != role {
+		u.logger.Named("GetUserByID").Error(constant.ErrInvalidRole, zap.String("role", req.Role), zap.Error(err))
+		return nil, apperror.ForbiddenError(constant.ErrInvalidRole)
+	}
+	res_return := dtos.UserDTO{
+		ID:        res.ID,
+		FirstName: res.FirstName,
+		LastName:  res.LastName,
+		Role:      res.RoleID,
+		CreatedAt: res.CreatedAt,
+		UpdatedAt: res.UpdatedAt,
+	}
+	return &res_return, nil
+
 }
 
 func (u *userUsecase) CreateUser(req *dtos.UserDTO, createUserDTO *dtos.CreateUserDTO) *apperror.AppError {
