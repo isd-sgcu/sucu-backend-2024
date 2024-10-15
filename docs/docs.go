@@ -359,7 +359,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/documents/role/{role_id}": {
+        "/documents/role/{role}": {
             "get": {
                 "produces": [
                     "application/json"
@@ -453,7 +453,38 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Documents"
+                ],
+                "summary": "Delete document by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Document ID",
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            },
+            "patch": {
                 "consumes": [
                     "application/json"
                 ],
@@ -490,37 +521,6 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {}
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {}
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {}
-                    }
-                }
-            },
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Documents"
-                ],
-                "summary": "Delete document by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Document ID",
-                        "name": "document_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
                     },
                     "404": {
                         "description": "Not Found",
@@ -762,6 +762,12 @@ const docTemplate = `{
         },
         "dtos.CreateDocumentDTO": {
             "type": "object",
+            "required": [
+                "content",
+                "title",
+                "type_id",
+                "user_id"
+            ],
             "properties": {
                 "banner": {
                     "type": "string"

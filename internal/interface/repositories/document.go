@@ -8,7 +8,7 @@ type DocumentRepository interface {
 	FindDocumentByID(ID string) (*entities.Document, error)
 
 	// back office
-	FindDocumentsByRole(roles *[]string) (*[]entities.Document, error)
+	FindDocumentsByRole(args *FindAllDocumentsByRoleArgs) (*[]entities.Document, error)
 	InsertDocument(document *entities.Document) error
 	UpdateDocumentByID(ID string, updateMap interface{}) error
 	DeleteDocumentByID(ID string) error
