@@ -101,7 +101,7 @@ func (h *DocumentHandler) GetDocumentByID(c *fiber.Ctx) error {
 // @Success 200 {object} response.Response{data=[]dtos.DocumentDTO}
 // @Failure 404 {object} response.Response
 // @Failure 500 {object} response.Response
-// @Router /documents/role/{role_id} [get]
+// @Router /documents/role/{role} [get]
 func (h *DocumentHandler) GetDocumentsByRole(c *fiber.Ctx) error {
 	// validate parameter
 	getallDocumentsByRoleDTO := dtos.GetAllDocumentsByRoleDTO{
@@ -110,7 +110,7 @@ func (h *DocumentHandler) GetDocumentsByRole(c *fiber.Ctx) error {
 		Title:        c.Query("title"),
 		DocumentType: c.Query("document_type"),
 		Organization: c.Query("organization"),
-		Role:         c.Params("role_id"),
+		Role:         c.Params("role"),
 	}
 
 	var errors []string
