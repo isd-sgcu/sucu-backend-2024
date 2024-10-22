@@ -50,7 +50,7 @@ func (u *userUsecase) GetUserByID(req *dtos.UserDTO, userID string) (*dtos.UserD
 		u.logger.Named("GetUserByID").Error(constant.ErrInvalidRole, zap.String("role", req.Role), zap.Error(err))
 		return nil, apperror.ForbiddenError(constant.ErrInvalidRole)
 	}
-	res_return := dtos.UserDTO{
+	resReturn := dtos.UserDTO{
 		ID:        res.ID,
 		FirstName: res.FirstName,
 		LastName:  res.LastName,
@@ -58,7 +58,7 @@ func (u *userUsecase) GetUserByID(req *dtos.UserDTO, userID string) (*dtos.UserD
 		CreatedAt: res.CreatedAt,
 		UpdatedAt: res.UpdatedAt,
 	}
-	return &res_return, nil
+	return &resReturn, nil
 
 }
 
