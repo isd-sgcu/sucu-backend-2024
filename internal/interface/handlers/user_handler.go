@@ -43,7 +43,15 @@ func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 // @Failure 500 {object} response.Response
 // @Router /users/{user_id} [get]
 func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
-	return nil
+	userID := c.Params("user_id")
+	req := c.Locals("user").(*dtos.UserDTO)
+	resReturn, err := h.userUsecase.GetUserByID(req, userID)
+	if err != nil {
+		resp := response.NewResponseFactory(response.ERROR, err.Error())
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+	resp := response.NewResponseFactory(response.SUCCESS, resReturn)
+	return resp.SendResponse(c, fiber.StatusOK)
 }
 
 // CreateUser godoc
