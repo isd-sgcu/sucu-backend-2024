@@ -8,6 +8,7 @@ import (
 	"github.com/isd-sgcu/sucu-backend-2024/internal/interface/dtos"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/response"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/validator"
+	"github.com/isd-sgcu/sucu-backend-2024/utils/constant"
 )
 
 type UserHandler struct {
@@ -33,6 +34,11 @@ func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 	var req dtos.GetAllUsersDTO
 	if err := c.BodyParser(&req); err != nil {
 		resp := response.NewResponseFactory(response.ERROR, err.Error())
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+	if req.Page < 1 || req.Limit < 1 {
+		err := fiber.NewError(400, constant.ErrInvalidValue)
+		resp := response.NewResponseFactory(response.ERROR, err.Message)
 		return resp.SendResponse(c, fiber.StatusBadRequest)
 	}
 

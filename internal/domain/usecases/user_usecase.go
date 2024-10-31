@@ -38,7 +38,7 @@ func (u *userUsecase) GetAllUsers(req *dtos.GetAllUsersDTO) (*[]dtos.UserDTO, *a
 	users, err := u.userRepository.FindAllUsers(limit, offset)
 	if err != nil {
 		u.logger.Named("GetAllUsers").Error(constant.ErrUserNotFound, zap.Error(err))
-		return nil, apperror.BadRequestError(constant.ErrUserNotFound)
+		return nil, apperror.InternalServerError(constant.ErrUserNotFound)
 	}
 
 	res := make([]dtos.UserDTO, len(*users))
