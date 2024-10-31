@@ -30,7 +30,19 @@ func NewUserHandler(userUsecase usecases.UserUsecase, validator validator.DTOVal
 // @Failure 500 {object} response.Response
 // @Router /users [get]
 func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
-	return nil
+	var req dtos.GetAllUsersDTO
+	if err := c.BodyParser(&req); err != nil {
+		resp := response.NewResponseFactory(response.ERROR, err.Error())
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+
+	resReturn, err := h.userUsecase.GetAllUsers(&req)
+	if err != nil {
+		resp := response.NewResponseFactory(response.ERROR, err.Error())
+		return resp.SendResponse(c, fiber.StatusBadRequest)
+	}
+	resp := response.NewResponseFactory(response.SUCCESS, resReturn)
+	return resp.SendResponse(c, fiber.StatusOK)
 }
 
 // GetUserByID godoc

@@ -24,3 +24,8 @@ type UpdateUserDTO struct {
 	LastName  string `json:"last_name"`  // user's last name
 	Password  string `json:"password"`   // user's password
 }
+
+type GetAllUsersDTO struct {
+	Page  int `json:"page"`  // current page
+	Limit int `json:"limit"` // page size
+}

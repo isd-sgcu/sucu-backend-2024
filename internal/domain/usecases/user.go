@@ -7,7 +7,7 @@ import (
 
 type UserUsecase interface {
 	// super-admin method
-	GetAllUsers(req *dtos.UserDTO) (*[]dtos.UserDTO, *apperror.AppError)
+	GetAllUsers(req *dtos.GetAllUsersDTO) (*[]dtos.UserDTO, *apperror.AppError)
 	GetUserByID(req *dtos.UserDTO, userID string) (*dtos.UserDTO, *apperror.AppError)
 	CreateUser(req *dtos.UserDTO, createUserDTO *dtos.CreateUserDTO) *apperror.AppError
 	UpdateUserByID(req *dtos.UserDTO, userID string, updateUserDTO *dtos.UpdateUserDTO) *apperror.AppError

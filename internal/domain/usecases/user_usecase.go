@@ -31,8 +31,28 @@ func NewUserUsecase(cfg config.Config, logger *zap.Logger, userRepository reposi
 
 // super-admin method
 
-func (u *userUsecase) GetAllUsers(req *dtos.UserDTO) (*[]dtos.UserDTO, *apperror.AppError) {
-	return nil, nil
+func (u *userUsecase) GetAllUsers(req *dtos.GetAllUsersDTO) (*[]dtos.UserDTO, *apperror.AppError) {
+	offset := req.Limit * (req.Page - 1)
+	limit := req.Limit
+
+	users, err := u.userRepository.FindAllUsers(limit, offset)
+	if err != nil {
+		u.logger.Named("GetAllUsers").Error(constant.ErrUserNotFound, zap.Error(err))
+		return nil, apperror.BadRequestError(constant.ErrUserNotFound)
+	}
+
+	res := make([]dtos.UserDTO, len(*users))
+	for i := 0; i < len(*users); i++ {
+		res[i] = dtos.UserDTO{
+			ID:        (*users)[i].ID,
+			FirstName: (*users)[i].FirstName,
+			LastName:  (*users)[i].LastName,
+			Role:      (*users)[i].RoleID,
+			CreatedAt: (*users)[i].CreatedAt,
+			UpdatedAt: (*users)[i].UpdatedAt,
+		}
+	}
+	return &res, nil
 }
 
 func (u *userUsecase) GetUserByID(req *dtos.UserDTO, userID string) (*dtos.UserDTO, *apperror.AppError) {

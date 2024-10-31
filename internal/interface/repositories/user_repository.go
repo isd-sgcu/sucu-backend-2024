@@ -15,8 +15,13 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	}
 }
 
-func (r *userRepository) FindAllUsers(roleID string) (*[]entities.User, error) {
-	return nil, nil
+func (r *userRepository) FindAllUsers(limit int, offset int) (*[]entities.User, error) {
+	var users []entities.User
+
+	if err := r.db.Limit(limit).Offset(offset).Find(&users).Error; err != nil {
+		return nil, err
+	}
+	return &users, nil
 }
 
 func (r *userRepository) FindUserByID(ID string) (*entities.User, error) {
