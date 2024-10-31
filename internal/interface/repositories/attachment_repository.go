@@ -1,11 +1,15 @@
 package repositories
 
 import (
+	"fmt"
 	"io"
+	"strings"
+	"time"
 
 	"github.com/isd-sgcu/sucu-backend-2024/internal/domain/entities"
 	"github.com/isd-sgcu/sucu-backend-2024/pkg/s3client"
 	"github.com/isd-sgcu/sucu-backend-2024/utils"
+	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 )
 
@@ -21,9 +25,56 @@ func NewAttachmentRepository(db *gorm.DB, s3 s3client.S3Client) AttachmentReposi
 	}
 }
 
+type FindAllAttachmentsArgs struct {
+	Offset       		int
+	Limit        		int
+	AttachmentType 	   	string
+	DisplayName        	string
+	StartTime    		time.Time
+	EndTime      		time.Time
+}
+
 // client side
-func (r *attachmentRepository) FindAllAttachments() (*entities.Attachment, error) {
-	return nil, nil
+func (r *attachmentRepository) FindAllAttachments(args *FindAllAttachmentsArgs) (*[]entities.Attachment, error) {
+	var attachments []entities.Attachment
+
+	var results []struct {
+		*entities.Attachment
+		*entities.Document
+		AttachmentID  string
+		DocumentID    string
+	}
+
+	err := r.db.Raw(`
+		SELECT *, attachments.id AS attachment_id
+		FROM attachments INNER JOIN documents ON documents.id = attachments.document_id
+		WHERE attachments.type_id LIKE ?
+		AND	 LOWER(attachments.display_name) LIKE ?
+		AND  documents.created_at BETWEEN ? AND ?
+		OFFSET ? LIMIT ?`,
+		fmt.Sprintf("%%%s%%", strings.ToUpper(args.AttachmentType)),
+		fmt.Sprintf("%%%s%%", strings.ToLower(args.DisplayName)),
+		args.StartTime,
+		args.EndTime,
+		args.Offset,
+		args.Limit).Scan(&results).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, result := range results {
+		var d entities.Attachment
+		copier.Copy(&d, &result)
+		copier.Copy(&d.Document, &result)
+
+		d.ID = result.AttachmentID
+		d.Document.ID = result.DocumentID
+
+		attachments = append(attachments, d)
+	}
+
+	return &attachments, nil
 }
 
 // back office

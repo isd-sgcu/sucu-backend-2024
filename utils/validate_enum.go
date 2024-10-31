@@ -29,6 +29,15 @@ func ValidateDocType(docType string) bool {
 	return validate(strings.ToUpper(docType), docs)
 }
 
+func ValidateAttachmentType(attachmentType string) bool {
+	attachment := []string{
+		constant.IMAGE,
+		constant.DOCS,
+	}
+
+	return validate(strings.ToUpper(attachmentType), attachment)
+}
+
 func ValidateOrg(org string) bool {
 	orgs := []string{
 		constant.SCCU,

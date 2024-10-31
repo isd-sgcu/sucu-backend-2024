@@ -11,3 +11,22 @@ type AttachmentDTO struct {
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
+
+type GetAllAttachmentsDTO struct {
+	Page         	int
+	PageSize     	int
+	DisplayName  	string
+	AttachmentType 	string // type: docs, image
+	StartTime    	time.Time
+	EndTime      	time.Time
+}
+
+type GetAllAttachmentsByRoleDTO struct {
+	Page         	int
+	PageSize     	int
+	DisplayName  	string
+	AttachmentType 	string // type: docs, image
+	Role			string
+	StartTime    	time.Time
+	EndTime      	time.Time
+}

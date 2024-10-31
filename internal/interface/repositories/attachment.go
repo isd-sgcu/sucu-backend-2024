@@ -8,7 +8,7 @@ import (
 
 type AttachmentRepository interface {
 	// client side
-	FindAllAttachments() (*entities.Attachment, error)
+	FindAllAttachments(args *FindAllAttachmentsArgs) (*[]entities.Attachment, error)
 
 	// back office
 	InsertAttachments(attachments *[]entities.Attachment) error

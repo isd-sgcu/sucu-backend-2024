@@ -23,6 +23,11 @@ var (
 	ErrUpdateDocumentFailed = "failed to update document"
 	ErrDeleteDocumentFailed = "failed to delete document"
 
+	// attachment error
+	ErrInvalidAttachmentType = "invalid attachment type"
+	ErrGetAttachmentFailed    = "failed to get attachment"
+
+
 	// pagination error
 	ErrInvalidPageSize = "invalid page size"
 )
