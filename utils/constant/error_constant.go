@@ -11,6 +11,7 @@ var (
 	ErrInvalidRole        = "invalid role"
 	ErrUpdateUserByID     = "failed to update user by ID"
 	ErrDeleteUserByID     = "failed to delete user"
+	ErrInvalidValue       = "invalid value"
 
 	// doc error
 	ErrInvalidDocType       = "invalid document type"
