@@ -50,7 +50,8 @@ func (r *attachmentRepository) FindAllAttachments(args *FindAllAttachmentsArgs) 
 		FROM attachments INNER JOIN documents ON documents.id = attachments.document_id
 		WHERE attachments.type_id LIKE ?
 		AND	 LOWER(attachments.display_name) LIKE ?
-		AND  documents.created_at BETWEEN ? AND ?
+		AND  attachments.created_at BETWEEN ? AND ?
+		AND attachments.type_id = 'DOCS'
 		OFFSET ? LIMIT ?`,
 		fmt.Sprintf("%%%s%%", strings.ToUpper(args.AttachmentType)),
 		fmt.Sprintf("%%%s%%", strings.ToLower(args.DisplayName)),
@@ -78,6 +79,62 @@ func (r *attachmentRepository) FindAllAttachments(args *FindAllAttachmentsArgs) 
 }
 
 // back office
+type FindAllAttachmentsByRoleArgs struct {
+	Offset       		int
+	Limit        		int
+	AttachmentType 	   	string
+	DisplayName        	string
+	StartTime    		time.Time
+	EndTime      		time.Time
+	Role				string
+}
+
+func (r *attachmentRepository) FindAllAttachmentsByRole(args *FindAllAttachmentsByRoleArgs) (*[]entities.Attachment, error) {
+	var attachments []entities.Attachment
+
+	var results []struct {
+		*entities.Attachment
+		*entities.Document
+		AttachmentID  string
+		DocumentID    string
+	}
+
+	err := r.db.Raw(`
+		SELECT *, attachments.id AS attachment_id
+		FROM attachments INNER JOIN documents ON documents.id = attachments.document_id
+		INNER JOIN users ON users.id = document.id
+		WHERE attachments.type_id LIKE ?
+		AND	 LOWER(attachments.display_name) LIKE ?
+		AND  attachments.created_at BETWEEN ? AND ?
+		AND users.role_id = ?
+		AND attachments.type_id = 'DOCS'
+		OFFSET ? LIMIT ?`,
+		fmt.Sprintf("%%%s%%", strings.ToUpper(args.AttachmentType)),
+		fmt.Sprintf("%%%s%%", strings.ToLower(args.DisplayName)),
+		args.StartTime,
+		args.EndTime,
+		strings.ToUpper(args.Role),
+		args.Offset,
+		args.Limit).Scan(&results).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, result := range results {
+		var d entities.Attachment
+		copier.Copy(&d, &result)
+		copier.Copy(&d.Document, &result)
+
+		d.ID = result.AttachmentID
+		d.Document.ID = result.DocumentID
+
+		attachments = append(attachments, d)
+	}
+
+	return &attachments, nil
+}
+
 func (r *attachmentRepository) InsertAttachments(attachments *[]entities.Attachment) error {
 	if err := r.db.Create(&attachments).Error; err != nil {
 		return err
