@@ -84,7 +84,7 @@ func (h *AttachmentHandler) DeleteAttachment(c *fiber.Ctx) error {
 
 	if err := h.attachmentUsecase.DeleteAttachment(attachmentID); err != nil {
 		resp := response.NewResponseFactory(response.ERROR, err.Error())
-		return resp.SendResponse(c, fiber.StatusInternalServerError)
+		return resp.SendResponse(c, err.HttpCode)
 	}
 
 	resp := response.NewResponseFactory(response.SUCCESS, nil)

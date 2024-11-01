@@ -126,7 +126,7 @@ func (u *attachmentUsecase) DeleteAttachment(ID string) *apperror.AppError {
 	_, err := u.attachmentRepository.FindAttachmentByID(ID)
 	if err != nil {
 		u.logger.Named("DeleteAttachment").Error("Find attachment by ID: ", zap.Error(err))
-		return apperror.InternalServerError(fmt.Sprintf("failed to find attachment: %s", err.Error()))
+		return apperror.NotFoundError(fmt.Sprintf("attachment not found: %s", err.Error()))
 	}
 
 	//Bank said 'delete แค่ใน db พอ ไม่ต้องลบบน cloud'
