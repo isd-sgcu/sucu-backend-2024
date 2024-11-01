@@ -5,7 +5,7 @@ import (
 )
 
 type UserRepository interface {
-	FindAllUsers(roleID string) (*[]entities.User, error)
+	FindAllUsers(limit int, offset int) (*[]entities.User, error)
 	FindUserByID(ID string) (*entities.User, error)
 	InsertUser(user *entities.User) error
 	UpdateUserByID(ID string, updateMap interface{}) error
