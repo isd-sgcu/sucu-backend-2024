@@ -15,6 +15,7 @@ import (
 	"github.com/isd-sgcu/sucu-backend-2024/utils"
 	"github.com/isd-sgcu/sucu-backend-2024/utils/constant"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type attachmentUsecase struct {
@@ -123,8 +124,11 @@ func (u *attachmentUsecase) uploadAndSaveAttachments(fileReaders map[string]io.R
 }
 
 func (u *attachmentUsecase) DeleteAttachment(ID string) *apperror.AppError {
-	_, err := u.attachmentRepository.FindAttachmentByID(ID)
-	if err != nil {
+	if _, err := u.attachmentRepository.FindAttachmentByID(ID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			u.logger.Named("DeleteAttachment").Error("Find attachment by ID: ", zap.Error(err))
+			return apperror.NotFoundError(fmt.Sprintf("attachment not found: %s", err.Error()))
+		}
 		u.logger.Named("DeleteAttachment").Error("Find attachment by ID: ", zap.Error(err))
 		return apperror.NotFoundError(fmt.Sprintf("attachment not found: %s", err.Error()))
 	}
