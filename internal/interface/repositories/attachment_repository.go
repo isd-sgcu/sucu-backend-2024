@@ -27,6 +27,14 @@ func (r *attachmentRepository) FindAllAttachments() (*entities.Attachment, error
 }
 
 // back office
+func (r *attachmentRepository) FindAttachmentByID(ID string) (*entities.Attachment, error) {
+	var attachment entities.Attachment
+	if err := r.db.First(&attachment, "id = ?", ID).Error; err != nil {
+		return nil, err
+	}
+	return &attachment, nil
+}
+
 func (r *attachmentRepository) InsertAttachments(attachments *[]entities.Attachment) error {
 	if err := r.db.Create(&attachments).Error; err != nil {
 		return err
@@ -50,6 +58,9 @@ func (r *attachmentRepository) UploadAttachmentToS3(bucketName string, fileReade
 }
 
 func (r *attachmentRepository) DeleteAttachmentByID(ID string) error {
+	if err := r.db.Delete(&entities.Attachment{}, "id = ?", ID).Error; err != nil {
+		return err
+	}
 	return nil
 }
 

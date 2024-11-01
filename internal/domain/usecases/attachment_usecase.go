@@ -123,5 +123,19 @@ func (u *attachmentUsecase) uploadAndSaveAttachments(fileReaders map[string]io.R
 }
 
 func (u *attachmentUsecase) DeleteAttachment(ID string) *apperror.AppError {
+	_, err := u.attachmentRepository.FindAttachmentByID(ID)
+	if err != nil {
+		u.logger.Named("DeleteAttachment").Error("Find attachment by ID: ", zap.Error(err))
+		return apperror.InternalServerError(fmt.Sprintf("failed to find attachment: %s", err.Error()))
+	}
+
+	//Bank said 'delete แค่ใน db พอ ไม่ต้องลบบน cloud'
+
+	if err := u.attachmentRepository.DeleteAttachmentByID(ID); err != nil {
+		u.logger.Named("DeleteAttachment").Error("Delete attachment from database: ", zap.Error(err))
+		return apperror.InternalServerError(fmt.Sprintf("failed to delete attachment from database: %s", err.Error()))
+	}
+
+	u.logger.Named("DeleteAttachment").Info("Success: ", zap.String("attachment_id", ID))
 	return nil
 }

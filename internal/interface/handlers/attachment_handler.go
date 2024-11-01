@@ -80,5 +80,13 @@ func (h *AttachmentHandler) CreateAttachments(c *fiber.Ctx) error {
 // @Failure 500 {object} response.Response
 // @Router /attachments/{attachment_id} [delete]
 func (h *AttachmentHandler) DeleteAttachment(c *fiber.Ctx) error {
-	return nil
+	attachmentID := strings.Trim(c.Params("attachment_id"), " ")
+
+	if err := h.attachmentUsecase.DeleteAttachment(attachmentID); err != nil {
+		resp := response.NewResponseFactory(response.ERROR, err.Error())
+		return resp.SendResponse(c, fiber.StatusInternalServerError)
+	}
+
+	resp := response.NewResponseFactory(response.SUCCESS, nil)
+	return resp.SendResponse(c, fiber.StatusOK)
 }
