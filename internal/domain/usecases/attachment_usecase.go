@@ -126,18 +126,18 @@ func (u *attachmentUsecase) uploadAndSaveAttachments(fileReaders map[string]io.R
 func (u *attachmentUsecase) DeleteAttachment(ID string) *apperror.AppError {
 	if _, err := u.attachmentRepository.FindAttachmentByID(ID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			u.logger.Named("DeleteAttachment").Error("Find attachment by ID: ", zap.Error(err))
-			return apperror.NotFoundError(fmt.Sprintf("attachment not found: %s", err.Error()))
+			u.logger.Named("DeleteAttachment").Error(constant.ErrAttachmentNotFound, zap.String("attachment_id", ID))
+			return apperror.NotFoundError(constant.ErrAttachmentNotFound)
 		}
-		u.logger.Named("DeleteAttachment").Error("Find attachment by ID: ", zap.Error(err))
-		return apperror.NotFoundError(fmt.Sprintf("attachment not found: %s", err.Error()))
+		u.logger.Named("DeleteAttachment").Error(constant.ErrFindAttachmentByID, zap.String("attachment_id", ID), zap.Error(err))
+		return apperror.InternalServerError(constant.ErrFindAttachmentByID)
 	}
 
 	//Bank said 'delete แค่ใน db พอ ไม่ต้องลบบน cloud'
 
 	if err := u.attachmentRepository.DeleteAttachmentByID(ID); err != nil {
-		u.logger.Named("DeleteAttachment").Error("Delete attachment from database: ", zap.Error(err))
-		return apperror.InternalServerError(fmt.Sprintf("failed to delete attachment from database: %s", err.Error()))
+		u.logger.Named("DeleteAttachment").Error(constant.ErrDeleteAttachmentFailed, zap.String("attachment_id", ID), zap.Error(err))
+		return apperror.InternalServerError(constant.ErrDeleteAttachmentFailed)
 	}
 
 	u.logger.Named("DeleteAttachment").Info("Success: ", zap.String("attachment_id", ID))
