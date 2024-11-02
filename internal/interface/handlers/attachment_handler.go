@@ -90,7 +90,7 @@ func (h *AttachmentHandler) GetAllAttachmentsByRole(c *fiber.Ctx) error {
 
 	var errors []string
 
-	if !utils.ValidateDocType(getallAttachmentsByRole.AttachmentType) {
+	if !utils.ValidateAttachmentType(getallAttachmentsByRole.AttachmentType) {
 		errors = append(errors, constant.ErrInvalidAttachmentType)
 	}
 

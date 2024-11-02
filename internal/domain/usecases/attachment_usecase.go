@@ -86,7 +86,7 @@ func (u *attachmentUsecase) GetAllAttachmentsByRole(req *dtos.GetAllAttachmentsB
 
 	attachments, err := u.attachmentRepository.FindAllAttachmentsByRole(args)
 	if err != nil {
-		u.logger.Named("GetAllAttachments").Error(constant.ErrGetAttachmentFailed, zap.Error(err))
+		u.logger.Named("GetAllAttachmentsByRole").Error(constant.ErrGetAttachmentFailed, zap.Error(err))
 		return nil, apperror.InternalServerError(constant.ErrGetAttachmentFailed)
 	}
 

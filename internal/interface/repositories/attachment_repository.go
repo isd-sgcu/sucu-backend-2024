@@ -48,12 +48,10 @@ func (r *attachmentRepository) FindAllAttachments(args *FindAllAttachmentsArgs) 
 	err := r.db.Raw(`
 		SELECT *, attachments.id AS attachment_id
 		FROM attachments INNER JOIN documents ON documents.id = attachments.document_id
-		WHERE attachments.type_id LIKE ?
 		AND	 LOWER(attachments.display_name) LIKE ?
 		AND  attachments.created_at BETWEEN ? AND ?
 		AND attachments.type_id = 'DOCS'
 		OFFSET ? LIMIT ?`,
-		fmt.Sprintf("%%%s%%", strings.ToUpper(args.AttachmentType)),
 		fmt.Sprintf("%%%s%%", strings.ToLower(args.DisplayName)),
 		args.StartTime,
 		args.EndTime,
@@ -102,14 +100,12 @@ func (r *attachmentRepository) FindAllAttachmentsByRole(args *FindAllAttachments
 	err := r.db.Raw(`
 		SELECT *, attachments.id AS attachment_id
 		FROM attachments INNER JOIN documents ON documents.id = attachments.document_id
-		INNER JOIN users ON users.id = document.id
-		WHERE attachments.type_id LIKE ?
+		INNER JOIN users ON users.id = documents.user_id
 		AND	 LOWER(attachments.display_name) LIKE ?
 		AND  attachments.created_at BETWEEN ? AND ?
 		AND users.role_id = ?
 		AND attachments.type_id = 'DOCS'
 		OFFSET ? LIMIT ?`,
-		fmt.Sprintf("%%%s%%", strings.ToUpper(args.AttachmentType)),
 		fmt.Sprintf("%%%s%%", strings.ToLower(args.DisplayName)),
 		args.StartTime,
 		args.EndTime,
