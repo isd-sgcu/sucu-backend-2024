@@ -11,6 +11,8 @@ type AttachmentRepository interface {
 	FindAllAttachments() (*entities.Attachment, error)
 
 	// back office
+	FindAttachmentByID(ID string) (*entities.Attachment, error)
+
 	InsertAttachments(attachments *[]entities.Attachment) error
 	UploadAttachmentToS3(bucketName string, fileReaders map[string]io.Reader) error
 
