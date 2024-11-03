@@ -85,7 +85,7 @@ func (h *AttachmentHandler) GetAllAttachmentsByRole(c *fiber.Ctx) error {
 		PageSize:     	c.QueryInt("page_size", 10),
 		DisplayName:  	c.Query("name"),
 		AttachmentType: c.Query("attachment_type"),
-		Role:         	c.Params("role"),
+		Role:         	c.Params("role_id"),
 	}
 
 	var errors []string
