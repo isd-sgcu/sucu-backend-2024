@@ -132,6 +132,7 @@ func (s *FiberHttpServer) initAttachmentRouter(router fiber.Router, httpHandler 
 	attachmentRouter.Get("/", httpHandler.Attachment().GetAllAttachments)
 	attachmentRouter.Get("/role/:role_id", httpHandler.Attachment().GetAllAttachmentsByRole)
 	attachmentRouter.Post("/:document_id", httpHandler.Attachment().CreateAttachments)
+	attachmentRouter.Delete("/:attachment_id", httpHandler.Middleware().IsLogin, httpHandler.Middleware().SuperAdmin, httpHandler.Attachment().DeleteAttachment)
 }
 
 func (s *FiberHttpServer) initDocumentRouter(router fiber.Router, httpHandler handlers.Handler) {

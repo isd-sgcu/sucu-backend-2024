@@ -29,6 +29,9 @@ var (
 	ErrGetAttachmentFailed    = "failed to get attachment"
 
 
+	ErrAttachmentNotFound     = "attachment not found"
+	ErrDeleteAttachmentFailed = "failed to delete attachment"
+	ErrFindAttachmentByID     = "failed to find attachment by ID"
 	// pagination error
 	ErrInvalidPageSize = "invalid page size"
 )

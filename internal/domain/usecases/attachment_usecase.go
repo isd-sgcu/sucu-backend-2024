@@ -16,6 +16,7 @@ import (
 	"github.com/isd-sgcu/sucu-backend-2024/utils"
 	"github.com/isd-sgcu/sucu-backend-2024/utils/constant"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type attachmentUsecase struct {
@@ -197,5 +198,22 @@ func (u *attachmentUsecase) uploadAndSaveAttachments(fileReaders map[string]io.R
 }
 
 func (u *attachmentUsecase) DeleteAttachment(ID string) *apperror.AppError {
+	if _, err := u.attachmentRepository.FindAttachmentByID(ID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			u.logger.Named("DeleteAttachment").Error(constant.ErrAttachmentNotFound, zap.String("attachment_id", ID))
+			return apperror.NotFoundError(constant.ErrAttachmentNotFound)
+		}
+		u.logger.Named("DeleteAttachment").Error(constant.ErrFindAttachmentByID, zap.String("attachment_id", ID), zap.Error(err))
+		return apperror.InternalServerError(constant.ErrFindAttachmentByID)
+	}
+
+	//Bank said 'delete แค่ใน db พอ ไม่ต้องลบบน cloud'
+
+	if err := u.attachmentRepository.DeleteAttachmentByID(ID); err != nil {
+		u.logger.Named("DeleteAttachment").Error(constant.ErrDeleteAttachmentFailed, zap.String("attachment_id", ID), zap.Error(err))
+		return apperror.InternalServerError(constant.ErrDeleteAttachmentFailed)
+	}
+
+	u.logger.Named("DeleteAttachment").Info("Success: ", zap.String("attachment_id", ID))
 	return nil
 }
