@@ -8,11 +8,10 @@ import (
 
 type AttachmentRepository interface {
 	// client side
-	FindAllAttachments() (*entities.Attachment, error)
+	FindAllAttachments(args *FindAllAttachmentsArgs) (*[]entities.Attachment, error)
 
 	// back office
-	FindAttachmentByID(ID string) (*entities.Attachment, error)
-
+	FindAllAttachmentsByRole(args *FindAllAttachmentsByRoleArgs) (*[]entities.Attachment, error)
 	InsertAttachments(attachments *[]entities.Attachment) error
 	UploadAttachmentToS3(bucketName string, fileReaders map[string]io.Reader) error
 

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"mime/multipart"
 	"strings"
 
@@ -32,12 +33,85 @@ func NewAttachmentUsecase(cfg config.Config, logger *zap.Logger, attachmentRepos
 	}
 }
 
-func (u *attachmentUsecase) GetAllAttachments() (*[]dtos.AttachmentDTO, *apperror.AppError) {
-	return nil, nil
+func (u *attachmentUsecase) GetAllAttachments(req *dtos.GetAllAttachmentsDTO) (*dtos.PaginationResponse, *apperror.AppError) {
+
+	args := &repositories.FindAllAttachmentsArgs{
+		Offset:       	(req.Page - 1) * req.PageSize,
+		Limit:        	req.PageSize,
+		AttachmentType: req.AttachmentType,
+		DisplayName:    req.DisplayName,
+		StartTime:    	req.StartTime,
+		EndTime:      	req.EndTime,
+	}
+
+	attachments, err := u.attachmentRepository.FindAllAttachments(args)
+	if err != nil {
+		u.logger.Named("GetAllAttachments").Error(constant.ErrGetAttachmentFailed, zap.Error(err))
+		return nil, apperror.InternalServerError(constant.ErrGetAttachmentFailed)
+	}
+
+	// create pagination response dtos
+	data := make([]map[string]interface{}, 0)
+	for _, d := range *attachments {
+		data = append(data, map[string]interface{}{
+			"id":           d.ID,
+			"display_name": d.DisplayName,
+			"document_id":  d.Document.ID,
+			"type":         strings.ToLower(d.TypeID),
+			"created_at":   d.CreatedAt,
+			"updated_at":   d.UpdatedAt,
+		})
+	}
+
+	paginationResponse := dtos.PaginationResponse{
+		Data:      data,
+		Page:      fmt.Sprintf("%d", req.Page),
+		Limit:     fmt.Sprintf("%d", req.PageSize),
+		TotalPage: fmt.Sprintf("%d", (int(math.Ceil(float64(len(data)) / float64(req.PageSize))))),
+	}
+
+	return &paginationResponse, nil
+
 }
 
-func (u *attachmentUsecase) GetAllAttachmentsByRole(req dtos.UserDTO) (*[]dtos.AttachmentDTO, *apperror.AppError) {
-	return nil, nil
+func (u *attachmentUsecase) GetAllAttachmentsByRole(req *dtos.GetAllAttachmentsByRoleDTO) (*dtos.PaginationResponse, *apperror.AppError) {
+	args := &repositories.FindAllAttachmentsByRoleArgs{
+		Offset:       	(req.Page - 1) * req.PageSize,
+		Limit:        	req.PageSize,
+		AttachmentType: req.AttachmentType,
+		DisplayName:    req.DisplayName,
+		StartTime:    	req.StartTime,
+		EndTime:      	req.EndTime,
+		Role:			req.Role,
+	}
+
+	attachments, err := u.attachmentRepository.FindAllAttachmentsByRole(args)
+	if err != nil {
+		u.logger.Named("GetAllAttachmentsByRole").Error(constant.ErrGetAttachmentFailed, zap.Error(err))
+		return nil, apperror.InternalServerError(constant.ErrGetAttachmentFailed)
+	}
+
+	// create pagination response dtos
+	data := make([]map[string]interface{}, 0)
+	for _, d := range *attachments {
+		data = append(data, map[string]interface{}{
+			"id":           d.ID,
+			"display_name": d.DisplayName,
+			"document_id":  d.Document.ID,
+			"type":         strings.ToLower(d.TypeID),
+			"created_at":   d.CreatedAt,
+			"updated_at":   d.UpdatedAt,
+		})
+	}
+
+	paginationResponse := dtos.PaginationResponse{
+		Data:      data,
+		Page:      fmt.Sprintf("%d", req.Page),
+		Limit:     fmt.Sprintf("%d", req.PageSize),
+		TotalPage: fmt.Sprintf("%d", (int(math.Ceil(float64(len(data)) / float64(req.PageSize))))),
+	}
+
+	return &paginationResponse, nil
 }
 
 func (u *attachmentUsecase) CreateAttachments(documentID string, files map[string][]*multipart.FileHeader) *apperror.AppError {

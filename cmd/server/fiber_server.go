@@ -129,6 +129,8 @@ func (s *FiberHttpServer) initUserRouter(router fiber.Router, httpHandler handle
 func (s *FiberHttpServer) initAttachmentRouter(router fiber.Router, httpHandler handlers.Handler) {
 	attachmentRouter := router.Group("/attachments")
 
+	attachmentRouter.Get("/", httpHandler.Attachment().GetAllAttachments)
+	attachmentRouter.Get("/role/:role_id", httpHandler.Attachment().GetAllAttachmentsByRole)
 	attachmentRouter.Post("/:document_id", httpHandler.Attachment().CreateAttachments)
 	attachmentRouter.Delete("/:attachment_id", httpHandler.Middleware().IsLogin, httpHandler.Middleware().SuperAdmin, httpHandler.Attachment().DeleteAttachment)
 }

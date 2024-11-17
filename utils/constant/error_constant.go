@@ -25,6 +25,10 @@ var (
 	ErrDeleteDocumentFailed = "failed to delete document"
 
 	// attachment error
+	ErrInvalidAttachmentType = "invalid attachment type"
+	ErrGetAttachmentFailed    = "failed to get attachment"
+
+
 	ErrAttachmentNotFound     = "attachment not found"
 	ErrDeleteAttachmentFailed = "failed to delete attachment"
 	ErrFindAttachmentByID     = "failed to find attachment by ID"

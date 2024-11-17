@@ -9,10 +9,10 @@ import (
 
 type AttachmentUsecase interface {
 	// client side
-	GetAllAttachments() (*[]dtos.AttachmentDTO, *apperror.AppError)
+	GetAllAttachments(req *dtos.GetAllAttachmentsDTO) (*dtos.PaginationResponse, *apperror.AppError)
 
 	// back office
-	GetAllAttachmentsByRole(req dtos.UserDTO) (*[]dtos.AttachmentDTO, *apperror.AppError)
+	GetAllAttachmentsByRole(req *dtos.GetAllAttachmentsByRoleDTO) (*dtos.PaginationResponse, *apperror.AppError)
 	CreateAttachments(documentID string, files map[string][]*multipart.FileHeader) *apperror.AppError
 	DeleteAttachment(ID string) *apperror.AppError
 }
