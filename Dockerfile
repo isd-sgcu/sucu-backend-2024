@@ -1,4 +1,4 @@
-FROM golang:1.22-buster AS build
+FROM golang:1.22-bullseye AS build
 
 WORKDIR /app
 
@@ -7,7 +7,7 @@ RUN go mod download
 
 RUN go build -o server ./cmd/main.go
 
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 
 COPY --from=build /app/server /bin/app
 
