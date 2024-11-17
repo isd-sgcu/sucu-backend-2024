@@ -15,7 +15,7 @@ import (
 )
 
 // @title SUCU Backend - API
-// @version 0.0.0
+// @version 0.1.0
 // @description  This is an SUCU Backend API in SUCU project.
 
 // @host      localhost:8080
