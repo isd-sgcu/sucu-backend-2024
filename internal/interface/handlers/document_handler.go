@@ -90,7 +90,16 @@ func (h *DocumentHandler) GetAllDocuments(c *fiber.Ctx) error {
 // @Failure 500 {object} response.Response
 // @Router /documents/{document_id} [get]
 func (h *DocumentHandler) GetDocumentByID(c *fiber.Ctx) error {
-	return nil
+	documentID := strings.Trim(c.Params("document_id"), " ")
+
+	document, err := h.documentUsecase.GetDocumentByID(documentID)
+	if err != nil {
+		resp := response.NewResponseFactory(response.ERROR, err.Error())
+		return resp.SendResponse(c, err.HttpCode)
+	}
+
+	resp := response.NewResponseFactory(response.SUCCESS, document)
+	return resp.SendResponse(c, fiber.StatusOK)
 }
 
 // GetDocumentsByRole godoc

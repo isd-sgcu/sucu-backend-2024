@@ -76,7 +76,13 @@ func (r *documentRepository) FindAllDocuments(args *FindAllDocumentsArgs) (*[]en
 }
 
 func (r *documentRepository) FindDocumentByID(ID string) (*entities.Document, error) {
-	return nil, nil
+	var document entities.Document
+
+	if err := r.db.First(&document, "id = ?", ID).Error; err != nil {
+		return nil, err
+	}
+
+	return &document, nil
 }
 
 type FindAllDocumentsByRoleArgs struct {

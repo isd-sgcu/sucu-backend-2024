@@ -77,7 +77,24 @@ func (u *documentUsecase) GetAllDocuments(req *dtos.GetAllDocumentsDTO) (*dtos.P
 }
 
 func (u *documentUsecase) GetDocumentByID(ID string) (*dtos.DocumentDTO, *apperror.AppError) {
-	return nil, nil
+	document, err := u.documentRepository.FindDocumentByID(ID)
+	if err != nil {
+		u.logger.Named("GetDocumentByID").Error(constant.ErrGetDocumentFailed, zap.String("documentID", ID), zap.Error(err))
+		return nil, apperror.NotFoundError(constant.ErrDocumentNotFound)
+	}
+	resReturn := dtos.DocumentDTO{
+		ID:        document.ID,
+		Title:     document.Title,
+		Banner:    document.Banner,
+		Cover:     document.Cover,
+		Content:   document.Content,
+		UserID:    document.UserID,
+		TypeID:    document.TypeID,
+		CreatedAt: document.CreatedAt,
+		UpdatedAt: document.UpdatedAt,
+	}
+
+	return &resReturn, nil
 }
 
 func (u *documentUsecase) GetDocumentsByRole(req *dtos.GetAllDocumentsByRoleDTO) (*dtos.PaginationResponse, *apperror.AppError) {
