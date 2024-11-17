@@ -22,7 +22,7 @@ var (
 func NewViperConfig() Config {
 	once.Do(func() {
 		v := viper.New()
-		v.SetConfigFile(".env")
+		// v.SetConfigFile(".env")
 		v.AutomaticEnv()
 
 		if err := v.ReadInConfig(); err != nil {
