@@ -40,8 +40,8 @@ func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 	page, pageError := strconv.Atoi(pageStr)
 
 	if limitError != nil || pageError != nil {
-		err := fiber.NewError(400, constant.ErrInvalidValue)
-		resp := response.NewResponseFactory(response.ERROR, err.Message)
+		err := fiber.NewError(400, constant.ErrInvalidQuery)
+		resp := response.NewResponseFactory(response.ERROR, err.Error())
 		return resp.SendResponse(c, fiber.StatusBadRequest)
 	}
 
