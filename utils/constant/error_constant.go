@@ -12,6 +12,7 @@ var (
 	ErrUpdateUserByID     = "failed to update user by ID"
 	ErrDeleteUserByID     = "failed to delete user"
 	ErrInvalidValue       = "invalid value"
+	ErrInvalidQuery       = "invalid query"
 
 	// doc error
 	ErrInvalidDocType       = "invalid document type"

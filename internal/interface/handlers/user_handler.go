@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -32,14 +33,21 @@ func NewUserHandler(userUsecase usecases.UserUsecase, validator validator.DTOVal
 // @Router /users [get]
 func (h *UserHandler) GetAllUsers(c *fiber.Ctx) error {
 	var req dtos.GetAllUsersDTO
-	if err := c.BodyParser(&req); err != nil {
+
+	limitStr := c.Query("limit", "10")
+	pageStr := c.Query("page", "1")
+	limit, limitError := strconv.Atoi(limitStr)
+	page, pageError := strconv.Atoi(pageStr)
+
+	if limitError != nil || pageError != nil {
+		err := fiber.NewError(400, constant.ErrInvalidQuery)
 		resp := response.NewResponseFactory(response.ERROR, err.Error())
 		return resp.SendResponse(c, fiber.StatusBadRequest)
 	}
-	if req.Page < 1 || req.Limit < 1 {
-		err := fiber.NewError(400, constant.ErrInvalidValue)
-		resp := response.NewResponseFactory(response.ERROR, err.Message)
-		return resp.SendResponse(c, fiber.StatusBadRequest)
+
+	req = dtos.GetAllUsersDTO{
+		Page:  page,
+		Limit: limit,
 	}
 
 	resReturn, err := h.userUsecase.GetAllUsers(&req)
